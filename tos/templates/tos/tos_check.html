@@ -1,10 +1,15 @@
-<h2>Terms of Service as of {{ tos.created }}</h2>
+{% if note %}
+    <h2>{{ note }}</note>
+{% else %}
+    <h2>Terms of Service as of {{ tos.created|date:"SHORT_DATE_FORMAT }}</h2>
+{% endif %}
 
 {{ tos.content }}
 
 <h2>Accept Terms of Service?</h2>
 
-<form method="post" action="#">
-    <button type="submit" name="accept">accept</button>
-    <button type="submit" name="reject">reject</button>
+<form method="post" action="{% url tos_check_tos %}">
+    {% csrf_token %}
+    <button type="submit" name="accept" value="accept">accept</button>
+    <button type="submit" name="accept" value="reject">reject</button>
 </form>
