@@ -1,24 +1,24 @@
 from django.contrib.auth.models import User 
-from django.contrib.flatpages import FlatPage
+from django.contrib.flatpages.models import FlatPage
 from django.core.exceptions import ValidationError 
 from django.db import models
 from django.utils.translation import ugettext_lazy as _ 
 
 class BaseModel(models.Model):
     
-    created     = models.DateTimeField(label=_('created'), auto_now_add=False, editable=False)
-    modified    = models.DateTimeField(label=_('modified'), auto_now=False, editable=False)
+    created     = models.DateTimeField(auto_now_add=False, editable=False)
+    modified    = models.DateTimeField(auto_now=False, editable=False)
     
     class Meta:
         abstract = True
 
 class TermsOfService(BaseModel):
     
-    flat_page   = models.ForeignKey(FlatPage, label=_('terms of service'), related_name='flatpage')
+    flat_page   = models.ForeignKey(FlatPage, related_name='flatpage')
     active      = models.BooleanField(_('active'), _('Only one terms of service is allowed to be active'))
     
     class Meta: 
-        ordering = ('created')
+        ordering = ('created',)
         verbose_name=_('Terms of Service')
         verbose_name_plural=_('Terms of Service')        
 
@@ -37,8 +37,8 @@ class TermsOfService(BaseModel):
         
 class UserAgreement(BaseModel):
     
-    terms_of_service = models.ForeignKey(FlatPage, label=_('terms of service'), related_name='terms')
-    user            = models.ForeignKey(User related_name='user')
+    terms_of_service = models.ForeignKey(FlatPage, related_name='terms')
+    user            = models.ForeignKey(User, related_name='user')
     
     def __unicode__(self):
         return self.terms_of_service
