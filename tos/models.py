@@ -37,8 +37,8 @@ class TermsOfService(BaseModel):
         
 class UserAgreement(BaseModel):
     
-    terms_of_service = models.ForeignKey(FlatPage, related_name='terms')
-    user            = models.ForeignKey(User, related_name='user')
+    terms_of_service = models.ForeignKey(TermsOfService, related_name='terms')
+    user            = models.ForeignKey(User, related_name='user_agreement')
     
     def __unicode__(self):
-        return self.terms_of_service
+        return '%s agreed to TOS: %s ' % (self.user.username, self.terms_of_service.__unicode__())
