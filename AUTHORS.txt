@@ -1,0 +1,5 @@
+django-tos is a revsys project
+
+The following is a list of much appreciated contributors:
+
+Daniel Greenfeld <pydanny@gmail.com>
