@@ -7,10 +7,10 @@ This project gives the admin the ability to reset terms of agreement with the en
 Summary
 =======
 
-    - based flatpage
-    - keep track of when TOS is changed
-    - Users need to be informed and reagree when they relogin (custom login)
-    - 2 models likely (TOS table and user re-agree)
+    - based on flatpages
+    - keeps track of when TOS is changed
+    - Users need to be informed and agree/re-agree when they login (custom login is provided)
+    - Just two models (TOS and user agreement)
     
 Installation
 ============
@@ -27,4 +27,6 @@ django-tos relies on django-flatpages so you have to follow those rules of insta
 
  5. Add `django.contrib.flatpages.middleware.FlatpageFallbackMiddleware` to your MIDDLEWARE_CLASSES setting.
 
- 5. Run the command `manage.py syncdb`.
+ 6. Run the command `manage.py syncdb`.
+ 
+ 7. In your root urlconf file `urls.py` add `(r'^login/$', 'tos.views.login', {}, 'login',),` to your url patterns.
