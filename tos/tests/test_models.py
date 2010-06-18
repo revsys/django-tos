@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User 
+from django.core.exceptions import ValidationError 
 from django.test import TestCase 
 
 from tos.models import TermsOfService, UserAgreement, has_user_agreed_latest_tos
@@ -33,9 +34,18 @@ class TestModels(TestCase):
         first = TermsOfService.objects.get(id=self.tos1.id)
         self.assertFalse(first.active)
         
+        # latest is active though
+        self.assertTrue(latest.active)        
+        
     def test_terms_of_service_manager(self):
         
         self.assertEquals(TermsOfService.objects.get_current_tos(), self.tos1)
+        
+    def test_validation_error_all_set_false(self):
+        """ If you try and set all to false the model will throw a ValidationError """
+        
+        self.tos1.active=False
+        self.assertRaises(ValidationError, self.tos1.save)        
         
     def test_user_agreement(self):
         

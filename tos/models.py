@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User 
 from django.core.exceptions import ValidationError 
 from django.db import models
+
 from django.utils.translation import ugettext_lazy as _ 
 
 class BaseModel(models.Model):
@@ -40,6 +41,10 @@ class TermsOfService(BaseModel):
 
         if self.active:
             TermsOfService.objects.exclude(id=self.id).update(active=False)
+            
+        else:
+            if not TermsOfService.objects.exclude(id=self.id).filter(active=True):
+                raise ValidationError('One of the terms of service must be marked active')
 
         super(TermsOfService,self).save(*args, **kwargs)
         
