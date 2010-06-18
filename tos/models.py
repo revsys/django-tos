@@ -4,6 +4,8 @@ from django.db import models
 
 from django.utils.translation import ugettext_lazy as _ 
 
+class NoActiveTermsOfService(ValidationError): pass
+
 class BaseModel(models.Model):
     
     created     = models.DateTimeField(auto_now_add=True, editable=False)
@@ -15,8 +17,11 @@ class BaseModel(models.Model):
 class TermsOfServiceManager(models.Manager):
     
     def get_current_tos(self):
-        return super(TermsOfServiceManager, self).get_query_set().get(active=True)
-        
+        try:
+            return super(TermsOfServiceManager, self).get_query_set().get(active=True)
+        except TermsOfService.DoesNotExist:
+            raise NoActiveTermsOfService('Please create an active Terms-of-Service')
+
 
 class TermsOfService(BaseModel):
 
@@ -44,7 +49,7 @@ class TermsOfService(BaseModel):
             
         else:
             if not TermsOfService.objects.exclude(id=self.id).filter(active=True):
-                raise ValidationError('One of the terms of service must be marked active')
+                raise NoActiveTermsOfService('One of the terms of service must be marked active')
 
         super(TermsOfService,self).save(*args, **kwargs)
         
