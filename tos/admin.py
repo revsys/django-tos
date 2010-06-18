@@ -1,5 +1,3 @@
-# TODO - enhance with FlatPage inline
-
 from django.contrib import admin 
 
 from tos.models import TermsOfService, UserAgreement

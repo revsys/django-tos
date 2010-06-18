@@ -1,5 +1,4 @@
 from django.contrib.auth.models import User 
-from django.contrib.flatpages.models import FlatPage
 from django.core.exceptions import ValidationError 
 from django.db import models
 from django.utils.translation import ugettext_lazy as _ 
@@ -11,11 +10,18 @@ class BaseModel(models.Model):
     
     class Meta:
         abstract = True
+        
+class TermsOfServiceManager(models.Manager):
+    
+    def get_current_tos(self):
+        return super(TermsOfServiceManager, self).get_query_set().get(active=True)
+        
 
 class TermsOfService(BaseModel):
-    
-    flat_page   = models.ForeignKey(FlatPage, related_name='flatpage')
-    active      = models.BooleanField(_('active'), _('Only one terms of service is allowed to be active'))
+
+    active      = models.BooleanField(_('active'), _('Only one terms of service is allowed to be active'))    
+    content     = models.TextField(_('content'), blank=True)
+    objects     = TermsOfServiceManager()
     
     class Meta: 
         get_latest_by = 'created'
@@ -44,3 +50,9 @@ class UserAgreement(BaseModel):
     
     def __unicode__(self):
         return '%s agreed to TOS: %s ' % (self.user.username, self.terms_of_service.__unicode__())
+    
+        
+def has_user_agreed_latest_tos(user):
+    if UserAgreement.objects.filter(terms_of_service=TermsOfService.objects.get_current_tos(),user=user):
+        return True
+    return False

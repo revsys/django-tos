@@ -1,29 +1,21 @@
 from django.contrib.auth.models import User 
-from django.contrib.flatpages.models import FlatPage
 from django.test import TestCase 
 
-from tos.models import TermsOfService, UserAgreement
+from tos.models import TermsOfService, UserAgreement, has_user_agreed_latest_tos
 
-class TestBasics(TestCase):
+class TestModels(TestCase):
 
     def setUp(self):
         self.user1 = User.objects.create_user('user1', 'user1@example.com', 'user1pass')
         self.user2 = User.objects.create_user('user2', 'user2@example.com', 'user2pass')
         self.user3 = User.objects.create_user('user3', 'user3@example.com', 'user3pass')
-        self.flatpage1 = FlatPage.objects.create(
-                url                     = '/terms-of-service/',
-                title                   = 'Terms of Service',
-                content                 = 'lorem ipsum and stuff',
-                enable_comments         = 0,
-                registration_required   = False
-        )
         
         self.tos1 = TermsOfService.objects.create(
-            flat_page   = self.flatpage1,
+            content     = "first edition of the terms of service",
             active      = True
         )
         self.tos2 = TermsOfService.objects.create(
-            flat_page   = self.flatpage1,
+            content     = "second edition of the terms of service",
             active      = False
         )        
         
@@ -41,6 +33,38 @@ class TestBasics(TestCase):
         first = TermsOfService.objects.get(id=self.tos1.id)
         self.assertFalse(first.active)
         
+    def test_terms_of_service_manager(self):
+        
+        self.assertEquals(TermsOfService.objects.get_current_tos(), self.tos1)
+        
     def test_user_agreement(self):
         
-        #agreement = UserAgreement.objects.create()
+        # simple agreement
+        UserAgreement.objects.create(
+            terms_of_service    = self.tos1,
+            user                = self.user1
+            )
+        self.assertTrue(has_user_agreed_latest_tos(self.user1))
+        self.assertFalse(has_user_agreed_latest_tos(self.user2))        
+        self.assertFalse(has_user_agreed_latest_tos(self.user3))                
+        
+        # Now set self.tos2.active to True and see what happens
+        self.tos2.active=True
+        self.tos2.save()
+        self.assertFalse(has_user_agreed_latest_tos(self.user1))
+        self.assertFalse(has_user_agreed_latest_tos(self.user2))        
+        self.assertFalse(has_user_agreed_latest_tos(self.user3))                
+        
+        # add in a couple agreements and try again
+        UserAgreement.objects.create(
+            terms_of_service    = self.tos2,
+            user                = self.user1
+            )
+        UserAgreement.objects.create(
+            terms_of_service    = self.tos2,
+            user                = self.user3
+            )
+        self.assertTrue(has_user_agreed_latest_tos(self.user1))
+        self.assertFalse(has_user_agreed_latest_tos(self.user2))        
+        self.assertTrue(has_user_agreed_latest_tos(self.user3))                
+        
