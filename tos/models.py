@@ -18,7 +18,8 @@ class TermsOfService(BaseModel):
     active      = models.BooleanField(_('active'), _('Only one terms of service is allowed to be active'))
     
     class Meta: 
-        ordering = ('created',)
+        get_latest_by = 'created'
+        ordering = ('-created',)
         verbose_name=_('Terms of Service')
         verbose_name_plural=_('Terms of Service')        
 
@@ -31,7 +32,8 @@ class TermsOfService(BaseModel):
     def save(self, *args, **kwargs): 
         """ Ensure we're being saved properly """ 
 
-        TermsOfService.objects.exclude(id=self.id).update(active=False)
+        if self.active:
+            TermsOfService.objects.exclude(id=self.id).update(active=False)
 
         super(TermsOfService,self).save(*args, **kwargs)
         

@@ -22,6 +22,12 @@ def login(request, template_name='registration/login.html',
     if request.method == "POST":
         form = authentication_form(data=request.POST)
         if form.is_valid():
+            
+            # force user to agree to TOS
+            # 1. get latest TOS
+            # 2. Confirm that user is on the TOS agreement list
+            # 3. redirect them to TOS page if they have not yet agreed
+            
             # Light security check -- make sure redirect_to isn't garbage.
             if not redirect_to or ' ' in redirect_to:
                 redirect_to = settings.LOGIN_REDIRECT_URL
