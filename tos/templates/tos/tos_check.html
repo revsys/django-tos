@@ -1,7 +1,7 @@
 {% if note %}
     <h2>{{ note }}</note>
 {% else %}
-    <h2>Terms of Service as of {{ tos.created|date:"SHORT_DATE_FORMAT }}</h2>
+    <h2>Terms of Service as of {{ tos.created|date:"SHORT_DATE_FORMAT" }}</h2>
 {% endif %}
 
 {{ tos.content }}
