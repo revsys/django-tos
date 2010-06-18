@@ -6,8 +6,8 @@ from django.utils.translation import ugettext_lazy as _
 
 class BaseModel(models.Model):
     
-    created     = models.DateTimeField(auto_now_add=False, editable=False)
-    modified    = models.DateTimeField(auto_now=False, editable=False)
+    created     = models.DateTimeField(auto_now_add=True, editable=False)
+    modified    = models.DateTimeField(auto_now=True, editable=False)
     
     class Meta:
         abstract = True
@@ -31,7 +31,7 @@ class TermsOfService(BaseModel):
     def save(self, *args, **kwargs): 
         """ Ensure we're being saved properly """ 
 
-        self.objects.exclude(id=self.id).update(active=False)
+        TermsOfService.objects.exclude(id=self.id).update(active=False)
 
         super(TermsOfService,self).save(*args, **kwargs)
         
