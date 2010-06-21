@@ -18,6 +18,10 @@ Installation
 
  2. Run the command `manage.py syncdb`.
  
- 3. In your root urlconf file `urls.py` add `(r'^login/$', 'tos.views.login', {}, 'login',),` to your url patterns.
+ 3. In your root urlconf file `urls.py` add::
  
- 4. In your root urlconf file `urls.py` add `(r'^terms-of-service/$', 'tos.views.tos', {}, 'tos',),` to your url patterns.
+     # terms of service links
+     urlpatterns += patterns('',
+         (r'^login/$', 'tos.views.login', {}, 'login',),
+         (r'^terms-of-service/', include('tos.urls')),
+     )
