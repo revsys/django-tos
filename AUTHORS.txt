@@ -1,5 +1,6 @@
-django-tos is a revsys project
+django-tos is a Revolution Systems (http://www.revsys.com/) project.
 
 The following is a list of much appreciated contributors:
 
 Daniel Greenfeld <pydanny@gmail.com>
+Frank Wiles <frank@revsys.com> 
