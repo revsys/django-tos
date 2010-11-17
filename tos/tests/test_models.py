@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User 
 from django.core.exceptions import ValidationError 
 from django.test import TestCase 
+from django.db.models.signals import post_syncdb 
 
 from tos.models import TermsOfService, UserAgreement, has_user_agreed_latest_tos
 
@@ -21,8 +22,9 @@ class TestModels(TestCase):
         )        
         
     def test_terms_of_service(self):
-        
-        self.assertEquals(TermsOfService.objects.count(),2)
+       
+        tos_objects = TermsOfService.objects.all()
+        self.assertEquals(TermsOfService.objects.count(),3)
         
         # order is by -created
         latest = TermsOfService.objects.latest()
@@ -77,4 +79,13 @@ class TestModels(TestCase):
         self.assertTrue(has_user_agreed_latest_tos(self.user1))
         self.assertFalse(has_user_agreed_latest_tos(self.user2))        
         self.assertTrue(has_user_agreed_latest_tos(self.user3))                
-        
+       
+class TestSyncDBSignal(TestCase): 
+    """
+    Test to ensure our post_syncdb signal is working.
+    """ 
+
+    def test_syncdb(self): 
+        found_tos = TermsOfService.objects.filter(active=True) 
+        self.assertEqual(len(found_tos), 1) 
+
