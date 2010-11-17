@@ -17,8 +17,8 @@ class TermsOfServiceManager(models.Manager):
     
     def get_current_tos(self):
         try:
-            return super(TermsOfServiceManager, self).get_query_set().get(active=True)
-        except TermsOfService.DoesNotExist:
+            return self.get(active=True) 
+        except self.model.DoesNotExist:
             raise NoActiveTermsOfService('Please create an active Terms-of-Service')
 
 

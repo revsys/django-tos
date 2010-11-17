@@ -36,7 +36,7 @@ def check_tos(request, template_name='tos/tos_check.html',
     
     note=""
     
-    tos =TermsOfService.objects.get_current_tos()
+    tos = TermsOfService.objects.get_current_tos()
     
     if request.method=="POST":
         if request.POST.get("accept", "") == "accept":
@@ -100,7 +100,7 @@ def login(request, template_name='registration/login.html',
                 
                 return render_to_response('tos/tos_check.html', {
                     redirect_field_name: redirect_to,
-                    'tos':TermsOfService.objects.get_current_tos()
+                    'tos': TermsOfService.objects.get_current_tos()
                 }, context_instance=RequestContext(request))                
 
     else:
