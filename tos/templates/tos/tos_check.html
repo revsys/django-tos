@@ -10,6 +10,6 @@
 
 <form method="post" action="{% url tos_check_tos %}">
     {% csrf_token %}
-    <button type="submit" name="accept" value="accept">accept</button>
-    <button type="submit" name="accept" value="reject">reject</button>
+    <input type="submit" name="accept" value="accept">
+    <input type="submit" name="accept" value="reject">
 </form>
