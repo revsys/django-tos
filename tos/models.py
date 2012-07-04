@@ -21,12 +21,12 @@ class TermsOfServiceManager(models.Manager):
         try:
             return self.get(active=True)
         except self.model.DoesNotExist:
-            raise NoActiveTermsOfService('Please create an active Terms-of-Service')
+            raise NoActiveTermsOfService(u'Please create an active Terms-of-Service')
 
 
 class TermsOfService(BaseModel):
     active = models.BooleanField(verbose_name=_('active'),
-                                 _('Only one terms of service is allowed to be active'))
+                                 help_text=_(u'Only one terms of service is allowed to be active'))
     content = models.TextField(verbose_name=_('content'), blank=True)
     objects = TermsOfServiceManager()
 
@@ -52,7 +52,7 @@ class TermsOfService(BaseModel):
             if not TermsOfService.objects\
                     .exclude(id=self.id)\
                     .filter(active=True):
-                raise NoActiveTermsOfService('One of the terms of service must be marked active')
+                raise NoActiveTermsOfService(u'One of the terms of service must be marked active')
 
         super(TermsOfService, self).save(*args, **kwargs)
 
