@@ -22,6 +22,6 @@ Installation
  
      # terms of service links
      urlpatterns += patterns('',
-         (r'^login/$', 'tos.views.login', {}, 'login',),
-         (r'^terms-of-service/', include('tos.urls')),
+         url(r'^login/$', 'tos.views.login', {}, 'auth_login',),
+         url(r'^terms-of-service/', include('tos.urls')),
      )
