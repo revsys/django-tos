@@ -25,3 +25,80 @@ Installation
          url(r'^login/$', 'tos.views.login', {}, 'auth_login',),
          url(r'^terms-of-service/', include('tos.urls')),
      )
+
+
+===============
+django-tos-i18n
+===============
+
+django-tos internationalization using django-modeltranslation.
+
+Installation
+============
+
+Assuming you have correctly installed django-tos in your app you only need to add following apps to ``INSTALLED_APPS``::
+
+    INSTALLED_APPS += ('modeltranslation', 'tos_i18n')
+
+and also you should also define your languages in django ``LANG`` variable, eg.::
+
+    LANGUAGES = (
+        ('pl', 'Polski'),
+        ('en', 'English'),
+        )
+
+Please note that adding those to ``INSTALLED_APPS`` **changes** django models. Concretely it adds for every registered ``field`` that should translated, additional fields with name ``field_<lang_code>``, e.g. for given model::
+
+    class MyModel(models.Model):
+        name = models.CharField(max_length=10)
+
+There will be generated fields: ``name`` , ``name_en``, ``name_pl``.
+
+You should probably migrate your database, using South is recommended. Migrations should be kept in your local project.
+
+How to migrate tos with South
+`````````````````````````````
+
+Here is some step-by-step example how to turn your legacy django-tos instalation synced using syncdb into translated tos with South migrations.
+
+ 1. Inform South that you want to store migrations in custom place::
+
+    # Add to INSTALLED_APS
+    SOUTH_MIGRATION_MODULES = {
+        'tos': 'YOUR_APP.migrations.tos',
+       }
+
+ 2. Add required directory (django package)::
+
+    mkdir -p YOUR_APP/migrations/tos
+    touch YOUR_APP/migrations/tos/__init__.py
+
+ 3. Create initial migration (referring to the database state as it is now)::
+
+    python manage.py schemamigration --initial tos
+
+ 4. Fake migration (because the changes are already in the database)::
+
+    python manage.py migrate tos --fake
+
+ 5. Install tos_i18n to INSTALLED_APPS::
+
+    INSTALLED_APS += ('tos_i18n', )
+
+ 6. Migrate what changed::
+
+    $ python manage.py schemamigration --auto tos
+    $ python migrate tos
+
+
+That's it. You are now running tos in i18n mode with languages you declared in LANGUAGES setting.
+
+This app will also make all required adjustments in django admin.
+
+For more info on how translation works in details please refer to `django-modeltranslation docs<https://django-modeltranslation.readthedocs.org/en/latest/>`_.
+
+
+
+
+
+
