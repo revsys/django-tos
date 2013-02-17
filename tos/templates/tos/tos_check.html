@@ -1,3 +1,4 @@
+{% load url from future %}
 {% if note %}
     <h2>{{ note }}</note>
 {% else %}
@@ -8,7 +9,7 @@
 
 <h2>Accept Terms of Service?</h2>
 
-<form method="post" action="{% url tos_check_tos %}">
+<form method="post" action="{% url "tos_check_tos" %}">
     {% csrf_token %}
     <input type="submit" name="accept" value="accept">
     <input type="submit" name="accept" value="reject">
