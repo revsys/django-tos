@@ -61,31 +61,31 @@ How to migrate tos with South
 
 Here is some step-by-step example how to turn your legacy django-tos instalation synced using syncdb into translated tos with South migrations.
 
- 1. Inform South that you want to store migrations in custom place::
+1. Inform South that you want to store migrations in custom place::
 
     # Add to INSTALLED_APS
     SOUTH_MIGRATION_MODULES = {
         'tos': 'YOUR_APP.migrations.tos',
-       }
+    }
 
- 2. Add required directory (django package)::
+2. Add required directory (django package)::
 
     mkdir -p YOUR_APP/migrations/tos
     touch YOUR_APP/migrations/tos/__init__.py
 
- 3. Create initial migration (referring to the database state as it is now)::
+3. Create initial migration (referring to the database state as it is now)::
 
     python manage.py schemamigration --initial tos
 
- 4. Fake migration (because the changes are already in the database)::
+4. Fake migration (because the changes are already in the database)::
 
     python manage.py migrate tos --fake
 
- 5. Install tos_i18n to INSTALLED_APPS::
+5. Install tos_i18n to INSTALLED_APPS::
 
     INSTALLED_APS += ('tos_i18n', )
 
- 6. Migrate what changed::
+6. Migrate what changed::
 
     $ python manage.py schemamigration --auto tos
     $ python migrate tos
