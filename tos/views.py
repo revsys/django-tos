@@ -1,16 +1,28 @@
+from django.views.generic import TemplateView
+import re
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth import login as auth_login
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth.models import User
 from django.contrib.sites.models import Site, RequestSite
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_protect
+from django.utils.translation import ugettext_lazy as _
 
 from tos.models import has_user_agreed_latest_tos, TermsOfService, UserAgreement
+
+class TosView(TemplateView):
+    template_name = "tos/tos.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(TosView, self).get_context_data(**kwargs)
+        context['tos'] = TermsOfService.objects.get_current_tos()
+        return context
+
 
 def _redirect_to(redirect_to):
     """ Moved redirect_to logic here to avoid duplication in views"""
@@ -31,13 +43,9 @@ def _redirect_to(redirect_to):
 @never_cache
 def check_tos(request, template_name='tos/tos_check.html',
     redirect_field_name=REDIRECT_FIELD_NAME,):
-    
+
     redirect_to = _redirect_to(request.REQUEST.get(redirect_field_name, ''))
-    
-    note=""
-    
     tos = TermsOfService.objects.get_current_tos()
-    
     if request.method=="POST":
         if request.POST.get("accept", "") == "accept":
             user = request.session['tos_user']
@@ -53,12 +61,12 @@ def check_tos(request, template_name='tos/tos_check.html',
 
             return HttpResponseRedirect(redirect_to)
         else:
-            note="You cannot login without agreeing to the terms of this site."
+            messages.error(request, _(u"You cannot login without agreeing to the terms of this site."))
 
-    
+
     return render_to_response(template_name, {
         'tos':tos,
-        'note':note,
+
         redirect_field_name: redirect_to,
     }, context_instance=RequestContext(request))
     
@@ -115,7 +123,7 @@ def login(request, template_name='registration/login.html',
 
     return render_to_response(template_name, {
         'form': form,
-        'redirect_field_name': redirect_to,
+        redirect_field_name: redirect_to,
         'site': current_site,
         'site_name': current_site.name,
     }, context_instance=RequestContext(request))
