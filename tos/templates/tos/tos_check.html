@@ -11,6 +11,9 @@
 
 <form method="post" action="{% url "tos_check_tos" %}">
     {% csrf_token %}
+    {% if next %}
+        <input type="hidden" name="next" value="{{next}}">
+    {% endif %}
     <input type="submit" name="accept" value="accept">
     <input type="submit" name="accept" value="reject">
 </form>
