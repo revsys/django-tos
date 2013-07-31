@@ -7,7 +7,7 @@ This project gives the admin the ability to reset terms of agreement with the en
 Summary
 =======
 
-    - keeps track of when TOS is changed
+    - Keeps track of when TOS is changed
     - Users need to be informed and agree/re-agree when they login (custom login is provided)
     - Just two models (TOS and user agreement)
     
@@ -36,39 +36,47 @@ django-tos internationalization using django-modeltranslation.
 Installation
 ============
 
-Assuming you have correctly installed django-tos in your app you only need to add following apps to ``INSTALLED_APPS``::
+Assuming you have correctly installed django-tos in your app you only need to
+add following apps to ``INSTALLED_APPS``::
 
     INSTALLED_APPS += ('modeltranslation', 'tos_i18n')
 
-and also you should also define your languages in django ``LANG`` variable, eg.::
+and also you should also define your languages in Django ``LANGUAGES``
+variable, eg.::
 
     LANGUAGES = (
         ('pl', 'Polski'),
         ('en', 'English'),
-        )
+    )
 
-Please note that adding those to ``INSTALLED_APPS`` **changes** django models. Concretely it adds for every registered ``field`` that should translated, additional fields with name ``field_<lang_code>``, e.g. for given model::
+Please note that adding those to ``INSTALLED_APPS`` **changes** Django models.
+Concretely it adds for every registered ``field`` that should translated,
+additional fields with name ``field_<lang_code>``, e.g. for given model::
 
     class MyModel(models.Model):
         name = models.CharField(max_length=10)
 
 There will be generated fields: ``name`` , ``name_en``, ``name_pl``.
 
-You should probably migrate your database, using South is recommended. Migrations should be kept in your local project.
+You should probably migrate your database, using South is recommended.
+Migrations should be kept in your local project.
+
 
 How to migrate tos with South
 `````````````````````````````
 
-Here is some step-by-step example how to turn your legacy django-tos instalation synced using syncdb into translated tos with South migrations.
+Here is some step-by-step example how to convert your legacy django-tos
+instalation synced using syncdb into a translated django-tos-i18n with South
+migrations.
 
-1. Inform South that you want to store migrations in custom place::
+1. Inform South that you want to store migrations in custom place by putting
+   this in your Django settings file::
 
-    # Add to INSTALLED_APS
     SOUTH_MIGRATION_MODULES = {
         'tos': 'YOUR_APP.migrations.tos',
     }
 
-2. Add required directory (django package)::
+2. Add required directory (package)::
 
     mkdir -p YOUR_APP/migrations/tos
     touch YOUR_APP/migrations/tos/__init__.py
@@ -81,24 +89,22 @@ Here is some step-by-step example how to turn your legacy django-tos instalation
 
     python manage.py migrate tos --fake
 
-5. Install tos_i18n to INSTALLED_APPS::
+5. Install tos_i18n (and modeltranslation) to ``INSTALLED_APPS``::
 
-    INSTALLED_APS += ('tos_i18n', )
+    INSTALLED_APPS += ('modeltranslation', 'tos_i18n',)
 
-6. Migrate what changed::
+6. Make sure that the Django LANGUAGES setting is properly configured.
+
+7. Migrate what changed::
 
     $ python manage.py schemamigration --auto tos
     $ python migrate tos
 
 
-That's it. You are now running tos in i18n mode with languages you declared in LANGUAGES setting.
+That's it. You are now running tos in i18n mode with the languages you declared
+in ``LANGUAGES`` setting. This will also make all required adjustments in the
+Django admin.
 
-This app will also make all required adjustments in django admin.
-
-For more info on how translation works in details please refer to `django-modeltranslation docs<https://django-modeltranslation.readthedocs.org/en/latest/>`_.
-
-
-
-
-
-
+For more info on how translation works in details please refer to the
+`django-modeltranslation documentation
+<https://django-modeltranslation.readthedocs.org/en/latest/>`_.
