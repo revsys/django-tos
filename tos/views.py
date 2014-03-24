@@ -26,13 +26,13 @@ class TosView(TemplateView):
 
 def _redirect_to(redirect_to):
     """ Moved redirect_to logic here to avoid duplication in views"""
-    
+
     # Light security check -- make sure redirect_to isn't garbage.
     if not redirect_to or ' ' in redirect_to:
         redirect_to = settings.LOGIN_REDIRECT_URL
 
-    # Heavier security check -- redirects to http://example.com should 
-    # not be allowed, but things like /view/?param=http://example.com 
+    # Heavier security check -- redirects to http://example.com should
+    # not be allowed, but things like /view/?param=http://example.com
     # should be allowed. This regex checks if there is a '//' *before* a
     # question mark.
     elif '//' in redirect_to and re.match(r'[^\?]*//', redirect_to):
@@ -49,11 +49,11 @@ def check_tos(request, template_name='tos/tos_check.html',
     if request.method=="POST":
         if request.POST.get("accept", "") == "accept":
             user = request.session['tos_user']
-            
+
             # Save the user agreement to the new TOS
             UserAgreement.objects.create(terms_of_service=tos, user=user)
-            
-            # Log the user in            
+
+            # Log the user in
             auth_login(request, user)
 
             if request.session.test_cookie_worked():
@@ -69,11 +69,11 @@ def check_tos(request, template_name='tos/tos_check.html',
 
         redirect_field_name: redirect_to,
     }, context_instance=RequestContext(request))
-    
-    
-        
+
+
+
 @csrf_protect
-@never_cache        
+@never_cache
 def login(request, template_name='registration/login.html',
           redirect_field_name=REDIRECT_FIELD_NAME,
           authentication_form=AuthenticationForm):
@@ -86,7 +86,7 @@ def login(request, template_name='registration/login.html',
         if form.is_valid():
 
             redirect_to = _redirect_to(redirect_to)
-                    
+
             # Okay, security checks complete. Check to see if user agrees to terms
             user = form.get_user()
             if has_user_agreed_latest_tos(user):
@@ -98,18 +98,18 @@ def login(request, template_name='registration/login.html',
                     request.session.delete_test_cookie()
 
                 return HttpResponseRedirect(redirect_to)
-                
+
             else:
                 # user has not yet agreed to latest tos
                 # force them to accept or refuse
-                
+
                 request.session['tos_user'] = user
-                
-                
+
+
                 return render_to_response('tos/tos_check.html', {
                     redirect_field_name: redirect_to,
                     'tos': TermsOfService.objects.get_current_tos()
-                }, context_instance=RequestContext(request))                
+                }, context_instance=RequestContext(request))
 
     else:
         form = authentication_form(request)
