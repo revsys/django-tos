@@ -2,6 +2,7 @@ from django.views.generic import TemplateView
 import re
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth import get_user_model
 from django.contrib.auth import login as auth_login
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.forms import AuthenticationForm
@@ -48,7 +49,7 @@ def check_tos(request, template_name='tos/tos_check.html',
     tos = TermsOfService.objects.get_current_tos()
     if request.method=="POST":
         if request.POST.get("accept", "") == "accept":
-            user = request.session['tos_user']
+            user = get_user_model().objects.get(pk=request.session['tos_user'])
 
             # Save the user agreement to the new TOS
             UserAgreement.objects.create(terms_of_service=tos, user=user)
@@ -103,7 +104,7 @@ def login(request, template_name='registration/login.html',
                 # user has not yet agreed to latest tos
                 # force them to accept or refuse
 
-                request.session['tos_user'] = user
+                request.session['tos_user'] = user.pk
 
 
                 return render_to_response('tos/tos_check.html', {
