@@ -50,6 +50,7 @@ def check_tos(request, template_name='tos/tos_check.html',
     if request.method=="POST":
         if request.POST.get("accept", "") == "accept":
             user = get_user_model().objects.get(pk=request.session['tos_user'])
+            user.backend = request.session['tos_backend']
 
             # Save the user agreement to the new TOS
             UserAgreement.objects.create(terms_of_service=tos, user=user)
@@ -105,6 +106,10 @@ def login(request, template_name='registration/login.html',
                 # force them to accept or refuse
 
                 request.session['tos_user'] = user.pk
+                # Pass the used backend as well since django will require it
+                # and it can only be optained by calling authenticate, but we got no credentials in check_tos.
+                # see: https://docs.djangoproject.com/en/1.6/topics/auth/default/#how-to-log-a-user-in
+                request.session['tos_backend'] = user.backend
 
 
                 return render_to_response('tos/tos_check.html', {
