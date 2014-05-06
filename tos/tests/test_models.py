@@ -1,7 +1,9 @@
-from django.contrib.auth.models import User 
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError 
 from django.test import TestCase 
 from django.db.models.signals import post_syncdb 
+
+User = get_user_model()
 
 from tos.models import TermsOfService, UserAgreement, has_user_agreed_latest_tos
 
