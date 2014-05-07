@@ -2,7 +2,6 @@ from django.views.generic import TemplateView
 import re
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth import get_user_model
 from django.contrib.auth import login as auth_login
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.forms import AuthenticationForm
@@ -15,6 +14,17 @@ from django.views.decorators.csrf import csrf_protect
 from django.utils.translation import ugettext_lazy as _
 
 from tos.models import has_user_agreed_latest_tos, TermsOfService, UserAgreement
+
+
+# Django 1.4 compatability
+try:
+    from django.contrib.auth import get_user_model
+except ImportError:
+    from django.contrib.auth.models import User
+    get_user_model = lambda: User
+
+USER = get_user_model()
+
 
 class TosView(TemplateView):
     template_name = "tos/tos.html"
@@ -40,14 +50,15 @@ def _redirect_to(redirect_to):
             redirect_to = settings.LOGIN_REDIRECT_URL
     return redirect_to
 
+
 @csrf_protect
 @never_cache
 def check_tos(request, template_name='tos/tos_check.html',
-    redirect_field_name=REDIRECT_FIELD_NAME,):
+              redirect_field_name=REDIRECT_FIELD_NAME,):
 
     redirect_to = _redirect_to(request.REQUEST.get(redirect_field_name, ''))
     tos = TermsOfService.objects.get_current_tos()
-    if request.method=="POST":
+    if request.method == "POST":
         if request.POST.get("accept", "") == "accept":
             user = get_user_model().objects.get(pk=request.session['tos_user'])
             user.backend = request.session['tos_backend']
@@ -65,13 +76,10 @@ def check_tos(request, template_name='tos/tos_check.html',
         else:
             messages.error(request, _(u"You cannot login without agreeing to the terms of this site."))
 
-
     return render_to_response(template_name, {
-        'tos':tos,
-
+        'tos': tos,
         redirect_field_name: redirect_to,
     }, context_instance=RequestContext(request))
-
 
 
 @csrf_protect
@@ -111,7 +119,6 @@ def login(request, template_name='registration/login.html',
                 # see: https://docs.djangoproject.com/en/1.6/topics/auth/default/#how-to-log-a-user-in
                 request.session['tos_backend'] = user.backend
 
-
                 return render_to_response('tos/tos_check.html', {
                     redirect_field_name: redirect_to,
                     'tos': TermsOfService.objects.get_current_tos()
@@ -133,4 +140,3 @@ def login(request, template_name='registration/login.html',
         'site': current_site,
         'site_name': current_site.name,
     }, context_instance=RequestContext(request))
-
