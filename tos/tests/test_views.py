@@ -1,10 +1,12 @@
 from django.conf import settings
-from django.contrib.auth.models import User 
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError 
 from django.core.urlresolvers import reverse 
 from django.test import TestCase 
 
 from tos.models import TermsOfService, UserAgreement, has_user_agreed_latest_tos
+
+User = get_user_model()
 
 class TestViews(TestCase):
 
