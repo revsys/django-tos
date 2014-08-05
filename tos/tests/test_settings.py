@@ -53,3 +53,10 @@ logging.basicConfig(
     level = logging.DEBUG,
     format = '%(asctime)s %(levelname)s %(message)s',
 )
+
+
+# Django 1.7 compatibility:
+import django
+if hasattr(django, 'setup'):
+    django.setup()
+

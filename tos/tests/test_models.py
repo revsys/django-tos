@@ -1,18 +1,12 @@
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
-
-# Django 1.4 compatability
-try:
-    from django.contrib.auth import get_user_model
-except ImportError:
-    from django.contrib.auth.models import User
-    get_user_model = lambda: User
-
-USER_MODEL = get_user_model()
-
-from tos.models import TermsOfService, UserAgreement, has_user_agreed_latest_tos
-
+from tos.models import (
+                        TermsOfService,
+                        UserAgreement,
+                        has_user_agreed_latest_tos,
+                        USER_MODEL
+                       )
 
 class TestModels(TestCase):
 
