@@ -77,6 +77,7 @@ class UserAgreement(BaseModel):
 
 
 def has_user_agreed_latest_tos(user):
-    if UserAgreement.objects.filter(terms_of_service=TermsOfService.objects.get_current_tos(), user=user):
-        return True
-    return False
+    return UserAgreement.objects.filter(
+        terms_of_service=TermsOfService.objects.get_current_tos(),
+        user=user
+    ).exists()
