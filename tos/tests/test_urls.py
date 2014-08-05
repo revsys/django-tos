@@ -1,8 +1,6 @@
-from django.conf.urls.defaults import * 
+from django.conf.urls import patterns, include
 
-from tos.views import * 
-
-urlpatterns = patterns('', 
-        (r'^login/$', 'tos.views.login', {}, 'login',), 
-        (r'^tos/', include('tos.urls')), 
-    ) 
+urlpatterns = patterns('',
+        (r'^login/$', 'tos.views.login', {}, 'login',),
+        (r'^tos/', include('tos.urls')),
+    )
