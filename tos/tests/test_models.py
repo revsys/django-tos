@@ -8,12 +8,19 @@ from tos.models import (
                         USER_MODEL
                        )
 
+
 class TestModels(TestCase):
 
     def setUp(self):
-        self.user1 = USER_MODEL.objects.create_user('user1', 'user1@example.com', 'user1pass')
-        self.user2 = USER_MODEL.objects.create_user('user2', 'user2@example.com', 'user2pass')
-        self.user3 = USER_MODEL.objects.create_user('user3', 'user3@example.com', 'user3pass')
+        self.user1 = USER_MODEL.objects.create_user('user1',
+                                                    'user1@example.com',
+                                                    'user1pass')
+        self.user2 = USER_MODEL.objects.create_user('user2',
+                                                    'user2@example.com',
+                                                    'user2pass')
+        self.user3 = USER_MODEL.objects.create_user('user3',
+                                                    'user3@example.com',
+                                                    'user3pass')
 
         self.tos1 = TermsOfService.objects.create(
             content="first edition of the terms of service",
@@ -26,7 +33,6 @@ class TestModels(TestCase):
 
     def test_terms_of_service(self):
 
-        tos_objects = TermsOfService.objects.all()
         self.assertEquals(TermsOfService.objects.count(), 2)
 
         # order is by -created
@@ -47,7 +53,9 @@ class TestModels(TestCase):
         self.assertEquals(TermsOfService.objects.get_current_tos(), self.tos1)
 
     def test_validation_error_all_set_false(self):
-        """ If you try and set all to false the model will throw a ValidationError """
+        """
+        If you try and set all to false the model will throw a ValidationError
+        """
 
         self.tos1.active = False
         self.assertRaises(ValidationError, self.tos1.save)
