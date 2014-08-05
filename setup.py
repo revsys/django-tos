@@ -16,6 +16,7 @@ setup(
     author_email='pydanny@gmail.com',
     url='http://github.com/revsys/django-tos/tree/master',
     packages=find_packages(),
+    include_package_data=True,
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Web Environment',
