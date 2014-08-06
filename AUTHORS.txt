@@ -6,3 +6,4 @@ Daniel Greenfeld <pydanny@gmail.com>
 Frank Wiles <frank@revsys.com>
 Krzysztof Dorosz <cypreess@gmail.com>
 akuryou
+George Dorn
