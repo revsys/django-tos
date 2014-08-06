@@ -9,10 +9,7 @@ except ImportError:
     from django.contrib.auth.models import User
     get_user_model = lambda: User
 
-from tos.models import TermsOfService, UserAgreement, has_user_agreed_latest_tos
-
-USER = get_user_model()
-
+from tos.models import TermsOfService, UserAgreement, has_user_agreed_latest_tos, USER_MODEL as USER
 
 class TestViews(TestCase):
 

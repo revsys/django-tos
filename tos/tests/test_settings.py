@@ -40,13 +40,8 @@ INSTALLED_APPS = (
 )
 
 TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
     'django.template.loaders.eggs.Loader',
-)
-
-TEMPLATE_DIRS = (
-        '/Users/frank/work/src/django-tos/templates/',
 )
 
 ROOT_URLCONF = 'tos.tests.test_urls'
@@ -58,3 +53,10 @@ logging.basicConfig(
     level = logging.DEBUG,
     format = '%(asctime)s %(levelname)s %(message)s',
 )
+
+
+# Django 1.7 compatibility:
+import django
+if hasattr(django, 'setup'):
+    django.setup()
+
