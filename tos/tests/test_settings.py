@@ -60,3 +60,5 @@ import django
 if hasattr(django, 'setup'):
     django.setup()
 
+if django.VERSION > (1, 6):
+    TEST_RUNNER = 'django.test.runner.DiscoverRunner'

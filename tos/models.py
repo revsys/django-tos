@@ -1,7 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-from django.conf import settings
 
 # Django 1.4 compatability
 try:
@@ -35,7 +34,8 @@ class TermsOfServiceManager(models.Manager):
 
 
 class TermsOfService(BaseModel):
-    active = models.BooleanField(verbose_name=_('active'),
+    active = models.BooleanField(default=False,
+                                 verbose_name=_('active'),
                                  help_text=_(u'Only one terms of service is allowed to be active'))
     content = models.TextField(verbose_name=_('content'), blank=True)
     objects = TermsOfServiceManager()
