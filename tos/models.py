@@ -5,12 +5,10 @@ from django.utils.translation import ugettext_lazy as _
 # Django 1.4 compatability
 try:
     from django.contrib.auth import get_user_model
+    USER_MODEL = get_user_model()
 except ImportError:
     from django.contrib.auth.models import User
-    get_user_model = lambda: User
-
-
-USER_MODEL = get_user_model()
+    USER_MODEL = User
 
 
 class NoActiveTermsOfService(ValidationError):
@@ -30,13 +28,19 @@ class TermsOfServiceManager(models.Manager):
         try:
             return self.get(active=True)
         except self.model.DoesNotExist:
-            raise NoActiveTermsOfService(u'Please create an active Terms-of-Service')
+            raise NoActiveTermsOfService(
+                u'Please create an active Terms-of-Service'
+            )
 
 
 class TermsOfService(BaseModel):
-    active = models.BooleanField(default=False,
-                                 verbose_name=_('active'),
-                                 help_text=_(u'Only one terms of service is allowed to be active'))
+    active = models.BooleanField(
+                default=False,
+                verbose_name=_('active'),
+                help_text=_(
+                    u'Only one terms of service is allowed to be active'
+                )
+    )
     content = models.TextField(verbose_name=_('content'), blank=True)
     objects = TermsOfServiceManager()
 
@@ -62,7 +66,9 @@ class TermsOfService(BaseModel):
             if not TermsOfService.objects\
                     .exclude(id=self.id)\
                     .filter(active=True):
-                raise NoActiveTermsOfService(u'One of the terms of service must be marked active')
+                raise NoActiveTermsOfService(
+                    u'One of the terms of service must be marked active'
+                )
 
         super(TermsOfService, self).save(*args, **kwargs)
 
@@ -77,6 +83,7 @@ class UserAgreement(BaseModel):
 
 
 def has_user_agreed_latest_tos(user):
-    if UserAgreement.objects.filter(terms_of_service=TermsOfService.objects.get_current_tos(), user=user):
-        return True
-    return False
+    return UserAgreement.objects.filter(
+        terms_of_service=TermsOfService.objects.get_current_tos(),
+        user=user,
+    ).exists()

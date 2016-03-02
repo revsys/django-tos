@@ -15,15 +15,13 @@ from django.utils.translation import ugettext_lazy as _
 
 from tos.models import has_user_agreed_latest_tos, TermsOfService, UserAgreement
 
-
 # Django 1.4 compatability
 try:
     from django.contrib.auth import get_user_model
+    USER_MODEL = get_user_model()
 except ImportError:
     from django.contrib.auth.models import User
-    get_user_model = lambda: User
-
-USER = get_user_model()
+    USER_MODEL = User
 
 
 class TosView(TemplateView):
@@ -74,7 +72,10 @@ def check_tos(request, template_name='tos/tos_check.html',
 
             return HttpResponseRedirect(redirect_to)
         else:
-            messages.error(request, _(u"You cannot login without agreeing to the terms of this site."))
+            messages.error(
+                request,
+                _(u"You cannot login without agreeing to the terms of this site.")
+            )
 
     return render_to_response(template_name, {
         'tos': tos,
@@ -97,7 +98,8 @@ def login(request, template_name='registration/login.html',
 
             redirect_to = _redirect_to(redirect_to)
 
-            # Okay, security checks complete. Check to see if user agrees to terms
+            # Okay, security checks complete. Check to see if user agrees
+            # to terms
             user = form.get_user()
             if has_user_agreed_latest_tos(user):
 
@@ -115,7 +117,8 @@ def login(request, template_name='registration/login.html',
 
                 request.session['tos_user'] = user.pk
                 # Pass the used backend as well since django will require it
-                # and it can only be optained by calling authenticate, but we got no credentials in check_tos.
+                # and it can only be optained by calling authenticate, but we
+                # got no credentials in check_tos.
                 # see: https://docs.djangoproject.com/en/1.6/topics/auth/default/#how-to-log-a-user-in
                 request.session['tos_backend'] = user.backend
 
