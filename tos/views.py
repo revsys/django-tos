@@ -58,7 +58,7 @@ def check_tos(request, template_name='tos/tos_check.html',
     tos = TermsOfService.objects.get_current_tos()
     if request.method == "POST":
         if request.POST.get("accept", "") == "accept":
-            user = get_user_model().objects.get(pk=request.session['tos_user'])
+            user = USER_MODEL.objects.get(pk=request.session['tos_user'])
             user.backend = request.session['tos_backend']
 
             # Save the user agreement to the new TOS
