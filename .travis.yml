@@ -3,7 +3,6 @@ python:
   - "2.6"
   - "2.7"
   - "3.4"
-  - "3.5"
 
 install:
   - pip install .
@@ -23,6 +22,4 @@ matrix:
     - python: "2.6"
       env: DJANGO="Django==1.7.11"
     - python: "3.4"
-      env: DJANGO="Django==1.4.12"
-    - python: "3.5"
       env: DJANGO="Django==1.4.12"
