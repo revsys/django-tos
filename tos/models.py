@@ -65,7 +65,8 @@ class TermsOfService(BaseModel):
         else:
             if not TermsOfService.objects\
                     .exclude(id=self.id)\
-                    .filter(active=True):
+                    .filter(active=True)\
+                    .exists():
                 raise NoActiveTermsOfService(
                     u'One of the terms of service must be marked active'
                 )
