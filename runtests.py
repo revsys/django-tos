@@ -40,6 +40,14 @@ if hasattr(django, 'setup'):
     django.setup()
 
 
+import logging
+logging.basicConfig(
+    level = logging.DEBUG,
+    format = '%(asctime)s %(levelname)s %(message)s',
+)
+logging.disable(logging.CRITICAL)
+
+
 def runtests():
     argv = sys.argv[:1] + ['test'] + sys.argv[1:]
     execute_from_command_line(argv)
