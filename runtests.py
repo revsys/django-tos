@@ -1,0 +1,49 @@
+#!/usr/bin/env python
+import sys
+
+import django
+
+from django.conf import settings
+from django.core.management import execute_from_command_line
+
+
+if not settings.configured:
+    settings.configure(
+        DATABASES={
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+            }
+        },
+        INSTALLED_APPS=[
+            'django.contrib.auth',
+            'django.contrib.contenttypes',
+            'django.contrib.sessions',
+            'django.contrib.messages',
+            'django.contrib.sites',
+            'tos',
+        ],
+        MIDDLEWARE_CLASSES=[
+            'django.middleware.common.CommonMiddleware',
+            'django.contrib.sessions.middleware.SessionMiddleware',
+            'django.middleware.csrf.CsrfViewMiddleware',
+            'django.contrib.auth.middleware.AuthenticationMiddleware',
+            'django.contrib.messages.middleware.MessageMiddleware',  
+        ],
+        ROOT_URLCONF='tos.tests.test_urls',
+        TEST_RUNNER='django.test.runner.DiscoverRunner',
+        LOGIN_URL='/login/'
+    )
+
+
+# Django 1.7 compatibility:
+if hasattr(django, 'setup'):
+    django.setup()
+
+
+def runtests():
+    argv = sys.argv[:1] + ['test'] + sys.argv[1:]
+    execute_from_command_line(argv)
+
+
+if __name__ == '__main__':
+    runtests()
