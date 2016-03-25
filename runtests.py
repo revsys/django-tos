@@ -30,7 +30,6 @@ if not settings.configured:
             'django.contrib.messages.middleware.MessageMiddleware',  
         ],
         ROOT_URLCONF='tos.tests.test_urls',
-        TEST_RUNNER='django.test.runner.DiscoverRunner',
         LOGIN_URL='/login/'
     )
 
@@ -49,7 +48,7 @@ logging.disable(logging.CRITICAL)
 
 
 def runtests():
-    argv = sys.argv[:1] + ['test'] + sys.argv[1:]
+    argv = sys.argv[:1] + ['test', 'tos']
     execute_from_command_line(argv)
 
 
