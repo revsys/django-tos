@@ -2,14 +2,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-# Django 1.4 compatability
-try:
-    from django.contrib.auth import get_user_model
-    USER_MODEL = get_user_model()
-except ImportError:
-    from django.contrib.auth.models import User
-    USER_MODEL = User
-
+from tos.compat import get_fk_user_model
 
 class NoActiveTermsOfService(ValidationError):
     pass
@@ -76,7 +69,7 @@ class TermsOfService(BaseModel):
 
 class UserAgreement(BaseModel):
     terms_of_service = models.ForeignKey(TermsOfService, related_name='terms')
-    user = models.ForeignKey(USER_MODEL, related_name='user_agreement')
+    user = models.ForeignKey(get_fk_user_model(), related_name='user_agreement')
 
     def __unicode__(self):
         return u'%s agreed to TOS: %s' % (self.user.username,

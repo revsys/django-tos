@@ -1,24 +1,24 @@
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
+from tos.compat import get_runtime_user_model
 from tos.models import (
                         TermsOfService,
                         UserAgreement,
                         has_user_agreed_latest_tos,
-                        USER_MODEL
                        )
 
 
 class TestModels(TestCase):
 
     def setUp(self):
-        self.user1 = USER_MODEL.objects.create_user('user1',
+        self.user1 = get_runtime_user_model().objects.create_user('user1',
                                                     'user1@example.com',
                                                     'user1pass')
-        self.user2 = USER_MODEL.objects.create_user('user2',
+        self.user2 = get_runtime_user_model().objects.create_user('user2',
                                                     'user2@example.com',
                                                     'user2pass')
-        self.user3 = USER_MODEL.objects.create_user('user3',
+        self.user3 = get_runtime_user_model().objects.create_user('user3',
                                                     'user3@example.com',
                                                     'user3pass')
 

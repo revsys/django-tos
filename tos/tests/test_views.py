@@ -2,20 +2,15 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
-# Django 1.4 compatability
-try:
-    from django.contrib.auth import get_user_model
-except ImportError:
-    from django.contrib.auth.models import User
-    get_user_model = lambda: User
+from tos.compat import get_runtime_user_model
+from tos.models import TermsOfService, UserAgreement, has_user_agreed_latest_tos
 
-from tos.models import TermsOfService, UserAgreement, has_user_agreed_latest_tos, USER_MODEL as USER
 
 class TestViews(TestCase):
 
     def setUp(self):
-        self.user1 = USER.objects.create_user('user1', 'user1@example.com', 'user1pass')
-        self.user2 = USER.objects.create_user('user2', 'user2@example.com', 'user2pass')
+        self.user1 = get_runtime_user_model().objects.create_user('user1', 'user1@example.com', 'user1pass')
+        self.user2 = get_runtime_user_model().objects.create_user('user2', 'user2@example.com', 'user2pass')
 
         self.tos1 = TermsOfService.objects.create(
             content="first edition of the terms of service",

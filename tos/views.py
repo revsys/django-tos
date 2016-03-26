@@ -13,15 +13,8 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_protect
 from django.utils.translation import ugettext_lazy as _
 
+from tos.compat import get_runtime_user_model
 from tos.models import has_user_agreed_latest_tos, TermsOfService, UserAgreement
-
-# Django 1.4 compatability
-try:
-    from django.contrib.auth import get_user_model
-    USER_MODEL = get_user_model()
-except ImportError:
-    from django.contrib.auth.models import User
-    USER_MODEL = User
 
 
 class TosView(TemplateView):
@@ -58,7 +51,7 @@ def check_tos(request, template_name='tos/tos_check.html',
     tos = TermsOfService.objects.get_current_tos()
     if request.method == "POST":
         if request.POST.get("accept", "") == "accept":
-            user = USER_MODEL.objects.get(pk=request.session['tos_user'])
+            user = get_runtime_user_model().objects.get(pk=request.session['tos_user'])
             user.backend = request.session['tos_backend']
 
             # Save the user agreement to the new TOS
