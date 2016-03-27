@@ -21,6 +21,7 @@ if not settings.configured:
             'django.contrib.messages',
             'django.contrib.sites',
             'tos',
+            'tos.tests'
         ],
         MIDDLEWARE_CLASSES=[
             'django.middleware.common.CommonMiddleware',
@@ -30,7 +31,8 @@ if not settings.configured:
             'django.contrib.messages.middleware.MessageMiddleware',  
         ],
         ROOT_URLCONF='tos.tests.test_urls',
-        LOGIN_URL='/login/'
+        LOGIN_URL='/login/',
+        SITE_ID='1'
     )
 
 
