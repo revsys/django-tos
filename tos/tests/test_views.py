@@ -63,7 +63,7 @@ class TestViews(TestCase):
         response = self.client.post(self.login_url, dict(username='user1',
             password='user1pass', next='http://example.com'))
         self.assertEqual(302, response.status_code)
-        self.assertIn(settings.LOGIN_REDIRECT_URL, str(response))
+        self.assertIn(settings.LOGIN_REDIRECT_URL, response._headers['location'][1])
 
     def test_need_to_log_in(self):
         """ GET to login url shows login tempalte."""
@@ -74,7 +74,7 @@ class TestViews(TestCase):
     def test_root_tos_view(self):
 
         response = self.client.get('/tos/')
-        self.assertIn('first edition of the terms of service', response.content)
+        self.assertIn(b'first edition of the terms of service', response.content)
 
     def test_reject_agreement(self):
 
