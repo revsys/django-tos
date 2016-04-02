@@ -5,26 +5,32 @@ from django.conf import settings
 def get_fk_user_model():
     if django.VERSION >= (1, 5):
         return settings.AUTH_USER_MODEL
-    return django.contrib.auth.models.User
+    from django.contrib.auth.models import User
+    return User
 
 
 def get_runtime_user_model():
     if django.VERSION >= (1, 5):
         from django.contrib.auth import get_user_model
         return get_user_model()
-    return django.contrib.auth.models.User
+    from django.contrib.auth.models import User
+    return User
 
 
 def get_request_site():
     if django.VERSION >= (1, 9):
-        return django.contrib.sites.requests.RequestSite
-    return django.contrib.sites.models.RequestSite
+        from django.contrib.sites.requests import RequestSite
+    else:
+        from django.contrib.sites.models import RequestSite
+    return RequestSite
 
 
 def get_library():
     if django.VERSION >= (1, 9):
-        return django.template.library.Library
-    return django.template.base.Library
+        from django.template.library import Library
+    else:
+        from django.template.base import Library
+    return Library
 
 
 if django.VERSION < (1, 5):
