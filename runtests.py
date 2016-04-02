@@ -36,11 +36,6 @@ if not settings.configured:
     )
 
 
-# Django 1.7 compatibility:
-if hasattr(django, 'setup'):
-    django.setup()
-
-
 import logging
 logging.basicConfig(
     level = logging.DEBUG,
