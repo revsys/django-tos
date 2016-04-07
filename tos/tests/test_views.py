@@ -2,20 +2,15 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
-# Django 1.4 compatability
-try:
-    from django.contrib.auth import get_user_model
-except ImportError:
-    from django.contrib.auth.models import User
-    get_user_model = lambda: User
+from tos.compat import get_runtime_user_model
+from tos.models import TermsOfService, UserAgreement, has_user_agreed_latest_tos
 
-from tos.models import TermsOfService, UserAgreement, has_user_agreed_latest_tos, USER_MODEL as USER
 
 class TestViews(TestCase):
 
     def setUp(self):
-        self.user1 = USER.objects.create_user('user1', 'user1@example.com', 'user1pass')
-        self.user2 = USER.objects.create_user('user2', 'user2@example.com', 'user2pass')
+        self.user1 = get_runtime_user_model().objects.create_user('user1', 'user1@example.com', 'user1pass')
+        self.user2 = get_runtime_user_model().objects.create_user('user2', 'user2@example.com', 'user2pass')
 
         self.tos1 = TermsOfService.objects.create(
             content="first edition of the terms of service",
@@ -52,6 +47,34 @@ class TestViews(TestCase):
         self.assertContains(response, "first edition of the terms of service")
 
         self.assertFalse(has_user_agreed_latest_tos(self.user2))
+
+    def test_do_not_need_agreement(self):
+        """ user2 tries to login and has already agreed"""
+
+        self.assertTrue(has_user_agreed_latest_tos(self.user1))
+
+        response = self.client.post(self.login_url, dict(username='user1',
+            password='user1pass'))
+        self.assertEqual(302, response.status_code)
+
+    def test_redirect_security(self):
+        """ redirect to outside url not allowed, should redirect to login url"""
+
+        response = self.client.post(self.login_url, dict(username='user1',
+            password='user1pass', next='http://example.com'))
+        self.assertEqual(302, response.status_code)
+        self.assertIn(settings.LOGIN_REDIRECT_URL, response._headers['location'][1])
+
+    def test_need_to_log_in(self):
+        """ GET to login url shows login tempalte."""
+
+        response = self.client.get(self.login_url)
+        self.assertContains(response, "Dummy login template.")
+
+    def test_root_tos_view(self):
+
+        response = self.client.get('/tos/')
+        self.assertIn(b'first edition of the terms of service', response.content)
 
     def test_reject_agreement(self):
 

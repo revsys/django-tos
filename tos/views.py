@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.auth import login as auth_login
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.sites.models import Site, RequestSite
+from django.contrib.sites.models import Site
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template import RequestContext
@@ -13,15 +13,8 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_protect
 from django.utils.translation import ugettext_lazy as _
 
+from tos.compat import get_runtime_user_model, get_request_site
 from tos.models import has_user_agreed_latest_tos, TermsOfService, UserAgreement
-
-# Django 1.4 compatability
-try:
-    from django.contrib.auth import get_user_model
-    USER_MODEL = get_user_model()
-except ImportError:
-    from django.contrib.auth.models import User
-    USER_MODEL = User
 
 
 class TosView(TemplateView):
@@ -54,11 +47,11 @@ def _redirect_to(redirect_to):
 def check_tos(request, template_name='tos/tos_check.html',
               redirect_field_name=REDIRECT_FIELD_NAME,):
 
-    redirect_to = _redirect_to(request.REQUEST.get(redirect_field_name, ''))
+    redirect_to = _redirect_to(request.POST.get(redirect_field_name, request.GET.get(redirect_field_name, '')))
     tos = TermsOfService.objects.get_current_tos()
     if request.method == "POST":
         if request.POST.get("accept", "") == "accept":
-            user = USER_MODEL.objects.get(pk=request.session['tos_user'])
+            user = get_runtime_user_model().objects.get(pk=request.session['tos_user'])
             user.backend = request.session['tos_backend']
 
             # Save the user agreement to the new TOS
@@ -90,7 +83,7 @@ def login(request, template_name='registration/login.html',
           authentication_form=AuthenticationForm):
     """Displays the login form and handles the login action."""
 
-    redirect_to = request.REQUEST.get(redirect_field_name, '')
+    redirect_to = request.POST.get(redirect_field_name, request.GET.get(redirect_field_name, ''))
 
     if request.method == "POST":
         form = authentication_form(data=request.POST)
@@ -135,7 +128,7 @@ def login(request, template_name='registration/login.html',
     if Site._meta.installed:
         current_site = Site.objects.get_current()
     else:
-        current_site = RequestSite(request)
+        current_site = get_request_site()(request)
 
     return render_to_response(template_name, {
         'form': form,

@@ -1,24 +1,25 @@
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
+from tos.compat import get_runtime_user_model
 from tos.models import (
+                        NoActiveTermsOfService,
                         TermsOfService,
                         UserAgreement,
                         has_user_agreed_latest_tos,
-                        USER_MODEL
                        )
 
 
 class TestModels(TestCase):
 
     def setUp(self):
-        self.user1 = USER_MODEL.objects.create_user('user1',
+        self.user1 = get_runtime_user_model().objects.create_user('user1',
                                                     'user1@example.com',
                                                     'user1pass')
-        self.user2 = USER_MODEL.objects.create_user('user2',
+        self.user2 = get_runtime_user_model().objects.create_user('user2',
                                                     'user2@example.com',
                                                     'user2pass')
-        self.user3 = USER_MODEL.objects.create_user('user3',
+        self.user3 = get_runtime_user_model().objects.create_user('user3',
                                                     'user3@example.com',
                                                     'user3pass')
 
@@ -47,10 +48,6 @@ class TestModels(TestCase):
 
         # latest is active though
         self.assertTrue(latest.active)
-
-    def test_terms_of_service_manager(self):
-
-        self.assertEquals(TermsOfService.objects.get_current_tos(), self.tos1)
 
     def test_validation_error_all_set_false(self):
         """
@@ -92,3 +89,18 @@ class TestModels(TestCase):
         self.assertTrue(has_user_agreed_latest_tos(self.user1))
         self.assertFalse(has_user_agreed_latest_tos(self.user2))
         self.assertTrue(has_user_agreed_latest_tos(self.user3))
+
+
+class TestManager(TestCase):
+    def test_terms_of_service_manager(self):
+
+        tos1 = TermsOfService.objects.create(
+            content="first edition of the terms of service",
+            active=True
+        )
+
+        self.assertEquals(TermsOfService.objects.get_current_tos(), tos1)
+
+    def test_terms_of_service_manager_raises_error(self):
+
+        self.assertRaises(NoActiveTermsOfService, TermsOfService.objects.get_current_tos)
