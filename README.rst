@@ -18,11 +18,13 @@ Summary
 Installation
 ============
 
- 1. Add `tos` to your INSTALLED_APPS setting.
+ 1. `pip install django-tos`
 
- 2. Run the command `manage.py syncdb`.
+ 2. Add `tos` to your INSTALLED_APPS setting.
 
- 3. In your root urlconf file `urls.py` add::
+ 3. Run the command `manage.py syncdb` or on newer version of Django `manage.py migrate`.
+
+ 4. In your root urlconf file `urls.py` add::
 
      # terms of service links
      urlpatterns += patterns('',
