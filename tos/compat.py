@@ -2,6 +2,14 @@ import django
 from django.conf import settings
 
 
+def patterns(mod, *urls):
+    if mod != '' or django.VERSION < (1, 9):
+        from django.conf.urls import patterns
+        return patterns(mod, *urls)
+    else:
+        return list(urls)
+
+
 def get_fk_user_model():
     if django.VERSION >= (1, 5):
         return settings.AUTH_USER_MODEL
