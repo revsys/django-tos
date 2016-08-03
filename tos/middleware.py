@@ -60,7 +60,6 @@ class UserAgreementMiddleware(object):
             cache.set('django:tos:agreed:{}'.format(user_id), user_agreed, version=key_version)
 
         if not user_agreed:
-            print("User didn't agree")
             return add_never_cache_headers(HttpResponseRedirect(tos_check_url))
 
         return None
