@@ -1,5 +1,8 @@
-from django.conf.urls import url, patterns
+from django.conf.urls import url
+
+from tos.compat import patterns
 from tos.views import check_tos, TosView
+
 
 urlpatterns = patterns('',
     # Terms of Service conform
