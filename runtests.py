@@ -28,7 +28,22 @@ if not settings.configured:
             'django.contrib.sessions.middleware.SessionMiddleware',
             'django.middleware.csrf.CsrfViewMiddleware',
             'django.contrib.auth.middleware.AuthenticationMiddleware',
-            'django.contrib.messages.middleware.MessageMiddleware',  
+            'django.contrib.messages.middleware.MessageMiddleware',
+        ],
+        TEMPLATES=[
+            {
+                'BACKEND': 'django.template.backends.django.DjangoTemplates',
+                'DIRS': [],
+                'APP_DIRS': True,
+                'OPTIONS': {
+                    'context_processors': [
+                        'django.template.context_processors.debug',
+                        'django.template.context_processors.request',
+                        'django.contrib.auth.context_processors.auth',
+                        'django.contrib.messages.context_processors.messages',
+                    ],
+                },
+            },
         ],
         ROOT_URLCONF='tos.tests.test_urls',
         LOGIN_URL='/login/',

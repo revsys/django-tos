@@ -40,10 +40,11 @@ Option 1: TOS Check On Sign In
 In your root urlconf file ``urls.py`` add:
 
 .. code-block:: python
+    from tos.views import login
 
     # terms of service links
     urlpatterns += patterns('',
-        url(r'^login/$', 'tos.views.login', {}, 'auth_login',),
+        url(r'^login/$', login, {}, 'auth_login',),
         url(r'^terms-of-service/', include('tos.urls')),
     )
 
