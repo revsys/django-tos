@@ -1,8 +1,10 @@
+from django import VERSION as DJANGO_VERSION
 from django.conf import settings
 from django.contrib.auth import SESSION_KEY as session_key
 from django.core.cache import caches
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
+from django.utils import deprecation
 from django.utils.cache import add_never_cache_headers
 
 from .models import UserAgreement
@@ -11,7 +13,7 @@ cache = caches[getattr(settings, 'TOS_CACHE_NAME', 'default')]
 tos_check_url = reverse('tos_check_tos')
 
 
-class UserAgreementMiddleware(object):
+class UserAgreementMiddleware(deprecation.MiddlewareMixin if DJANGO_VERSION >= (1, 10, 0) else object):
     """
     Some middleware to check if users have agreed to the latest TOS
     """
