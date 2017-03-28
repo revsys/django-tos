@@ -1,5 +1,6 @@
-from django.views.generic import TemplateView
 import re
+
+from django import VERSION as DJANGO_VERSION
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login as auth_login
@@ -7,10 +8,11 @@ from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.sites.models import Site
 from django.http import HttpResponseRedirect
-from django.shortcuts import render_to_response
+from django.shortcuts import render, render_to_response
 from django.template import RequestContext
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_protect
+from django.views.generic import TemplateView
 from django.utils.translation import ugettext_lazy as _
 
 from tos.compat import get_runtime_user_model, get_request_site
@@ -70,10 +72,16 @@ def check_tos(request, template_name='tos/tos_check.html',
                 _(u"You cannot login without agreeing to the terms of this site.")
             )
 
-    return render_to_response(template_name, {
-        'tos': tos,
-        redirect_field_name: redirect_to,
-    }, RequestContext(request))
+    if DJANGO_VERSION >= (1, 10, 0):
+        return render(request, template_name, {
+            'tos': tos,
+            redirect_field_name: redirect_to,
+        })
+    else:
+        return render_to_response(template_name, {
+            'tos': tos,
+            redirect_field_name: redirect_to,
+        }, RequestContext(request))
 
 
 @csrf_protect
