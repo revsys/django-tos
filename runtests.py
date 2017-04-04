@@ -51,7 +51,6 @@ if not settings.configured:
         CACHES = {
             'tos': {
                 'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-                'LOCATION': 'unique-snowflake',
             }
         },
         TOS_CACHE_NAME = 'tos' 
