@@ -38,7 +38,8 @@ class UserAgreementMiddleware(deprecation.MiddlewareMixin if DJANGO_VERSION >= (
         # for the user object.
         # NOTE: We use the user ID because it's not user-settable and it won't
         #       ever change (usernames and email addresses can change)
-        user_id = request.session.get(session_key)
+        user_id = int(request.session['_auth_user_id'])
+        user_auth_backend = request.session['_auth_user_backend']
 
         # Get the cache prefix
         key_version = cache.get('django:tos:key_version')
@@ -62,6 +63,11 @@ class UserAgreementMiddleware(deprecation.MiddlewareMixin if DJANGO_VERSION >= (
             cache.set('django:tos:agreed:{}'.format(user_id), user_agreed, version=key_version)
 
         if not user_agreed:
+            # Confirm view uses these session keys. Non-middleware flow sets them in login view,
+            # so we need to set them here.
+            request.session['tos_user'] = user_id
+            request.session['tos_backend'] = user_auth_backend
+
             response = HttpResponseRedirect(tos_check_url)
             add_never_cache_headers(response)
             return response
