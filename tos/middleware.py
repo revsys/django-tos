@@ -1,15 +1,15 @@
 from django import VERSION as DJANGO_VERSION
 from django.conf import settings
 from django.contrib.auth import SESSION_KEY as session_key
-from django.core.cache import caches
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.utils import deprecation
 from django.utils.cache import add_never_cache_headers
 
+from .compat import get_cache
 from .models import UserAgreement
 
-cache = caches[getattr(settings, 'TOS_CACHE_NAME', 'default')]
+cache = get_cache(getattr(settings, 'TOS_CACHE_NAME', 'default'))
 tos_check_url = reverse('tos_check_tos')
 
 
