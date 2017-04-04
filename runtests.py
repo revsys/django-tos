@@ -49,6 +49,9 @@ if not settings.configured:
         LOGIN_URL='/login/',
         SITE_ID='1',
         CACHES = {
+            'default': {
+                'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+            },
             'tos': {
                 'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
             }
