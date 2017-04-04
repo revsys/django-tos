@@ -9,7 +9,10 @@ from tos.models import TermsOfService, UserAgreement, has_user_agreed_latest_tos
 class TestViews(TestCase):
 
     def setUp(self):
+        # User that has agreed to TOS
         self.user1 = get_runtime_user_model().objects.create_user('user1', 'user1@example.com', 'user1pass')
+
+        # User that has not yet agreed to TOS
         self.user2 = get_runtime_user_model().objects.create_user('user2', 'user2@example.com', 'user2pass')
 
         self.tos1 = TermsOfService.objects.create(

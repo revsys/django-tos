@@ -41,6 +41,15 @@ def get_library():
     return Library
 
 
+def get_cache(cache_name):
+    if django.VERSION >= (1, 7):
+        from django.core.cache import caches
+        return caches[cache_name]
+    else:
+        from django.core.cache import get_cache
+        return get_cache(cache_name)
+
+
 if django.VERSION < (1, 5):
     from django.templatetags.future import url
 else:
