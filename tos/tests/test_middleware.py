@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.core.urlresolvers import reverse
-from django.test import TestCase, override_settings
+from django.test import TestCase
+from django.test.utils import override_settings
 
 from tos.compat import get_runtime_user_model
 from tos.models import TermsOfService, UserAgreement
