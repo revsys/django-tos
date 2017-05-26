@@ -9,6 +9,8 @@ from django.utils.cache import add_never_cache_headers
 from .compat import get_cache
 from .models import UserAgreement
 
+# Set to str or uuid.UUID for UUIDs
+tos_id_func = getattr(settings, 'TOS_ID_FUNC', int)
 cache = get_cache(getattr(settings, 'TOS_CACHE_NAME', 'default'))
 tos_check_url = reverse('tos_check_tos')
 
@@ -38,7 +40,7 @@ class UserAgreementMiddleware(deprecation.MiddlewareMixin if DJANGO_VERSION >= (
         # for the user object.
         # NOTE: We use the user ID because it's not user-settable and it won't
         #       ever change (usernames and email addresses can change)
-        user_id = int(request.session['_auth_user_id'])
+        user_id = tos_id_func(request.session['_auth_user_id'])
         user_auth_backend = request.session['_auth_user_backend']
 
         # Get the cache prefix
