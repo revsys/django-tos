@@ -57,7 +57,7 @@ def check_tos(request, template_name='tos/tos_check.html',
             user.backend = request.session['tos_backend']
 
             # Save the user agreement to the new TOS
-            UserAgreement.objects.create(terms_of_service=tos, user=user)
+            UserAgreement.objects.get_or_create(terms_of_service=tos, user=user)
 
             # Log the user in
             auth_login(request, user)
