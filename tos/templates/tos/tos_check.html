@@ -1,19 +1,20 @@
+{% load i18n %}
 {% load url from compat %}
 {% if note %}
     <h2>{{ note }}</note>
 {% else %}
-    <h2>Terms of Service as of {{ tos.created|date:"SHORT_DATE_FORMAT" }}</h2>
+    <h2>{% blocktrans %}Terms of Service as of {{ tos.created|date:"SHORT_DATE_FORMAT" }}{% endblocktrans %}</h2>
 {% endif %}
 
 {{ tos.content|safe }}
 
-<h2>Accept Terms of Service?</h2>
+<h2>{% trans "Accept Terms of Service?" %}</h2>
 
 <form method="post" action="{% url "tos_check_tos" %}">
     {% csrf_token %}
     {% if next %}
         <input type="hidden" name="{{ redirect_field_name }}" value="{{ next }}">
     {% endif %}
-    <button type="submit" name="reject" value="reject">Reject</button>
-    <button type="submit" name="accept" value="accept">Accept</button>
+    <button type="submit" name="reject" value="reject">{% trans "Reject" %}</button>
+    <button type="submit" name="accept" value="accept">{% trans "Accept" %}</button>
 </form>
