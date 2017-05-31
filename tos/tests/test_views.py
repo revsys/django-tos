@@ -41,6 +41,29 @@ class TestViews(TestCase):
         self.failUnless(login, 'Could not log in')
         self.assertTrue(has_user_agreed_latest_tos(self.user1))
 
+    def test_user_agrees_multiple_times(self):
+        login_response = self.client.post(reverse('login'), {
+            'username': 'user2',
+            'password': 'user2pass',
+        })
+
+        self.assertTrue(login_response)
+
+        response = self.client.post(reverse('tos_check_tos'), {'accept': 'accept'})
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(UserAgreement.objects.filter(user=self.user2).count(), 1)
+
+        response = self.client.post(reverse('tos_check_tos'), {'accept': 'accept'})
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(UserAgreement.objects.filter(user=self.user2).count(), 1)
+
+        response = self.client.post(reverse('tos_check_tos'), {'accept': 'accept'})
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(UserAgreement.objects.filter(user=self.user2).count(), 1)
+
     def test_need_agreement(self):
         """ user2 tries to login and then has to go and agree to terms"""
 
