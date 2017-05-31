@@ -124,13 +124,6 @@ Option 2 Configuration
 
    this setting defaults to the ``default`` cache.
 
-   If the primary keys on your user models are UUIDs, you will need to set the
-   ``TOS_ID_FUNC`` to ``str`` or ``uuid.UUID`` as well:
-
-   .. code-block:: python
-
-       TOS_ID_FUNC = str  # No quotes
-
 4. Then in your project's ``settings.py`` add the middleware to ``MIDDLEWARE_CLASSES``:
 
    .. code-block:: python
