@@ -38,7 +38,7 @@ class UserAgreementMiddleware(deprecation.MiddlewareMixin if DJANGO_VERSION >= (
         # for the user object.
         # NOTE: We use the user ID because it's not user-settable and it won't
         #       ever change (usernames and email addresses can change)
-        user_id = int(request.session['_auth_user_id'])
+        user_id = request.session['_auth_user_id']
         user_auth_backend = request.session['_auth_user_backend']
 
         # Get the cache prefix
