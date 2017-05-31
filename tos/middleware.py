@@ -1,6 +1,6 @@
 from django import VERSION as DJANGO_VERSION
 from django.conf import settings
-from django.contrib.auth import SESSION_KEY as session_key
+from django.contrib.auth import REDIRECT_FIELD_NAME, SESSION_KEY as session_key
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.utils import deprecation
@@ -68,7 +68,11 @@ class UserAgreementMiddleware(deprecation.MiddlewareMixin if DJANGO_VERSION >= (
             request.session['tos_user'] = user_id
             request.session['tos_backend'] = user_auth_backend
 
-            response = HttpResponseRedirect(tos_check_url)
+            response = HttpResponseRedirect('{0}?{1}={2}'.format(
+                tos_check_url,
+                REDIRECT_FIELD_NAME,
+                request.path_info,
+            ))
             add_never_cache_headers(response)
             return response
 
