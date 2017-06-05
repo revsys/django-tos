@@ -57,7 +57,7 @@ def check_tos(request, template_name='tos/tos_check.html',
             user.backend = request.session['tos_backend']
 
             # Save the user agreement to the new TOS
-            UserAgreement.objects.create(terms_of_service=tos, user=user)
+            UserAgreement.objects.get_or_create(terms_of_service=tos, user=user)
 
             # Log the user in
             auth_login(request, user)
@@ -75,12 +75,14 @@ def check_tos(request, template_name='tos/tos_check.html',
     if DJANGO_VERSION >= (1, 10, 0):
         return render(request, template_name, {
             'tos': tos,
-            redirect_field_name: redirect_to,
+            'redirect_field_name': redirect_field_name,
+            'next': redirect_to,
         })
     else:
         return render_to_response(template_name, {
             'tos': tos,
-            redirect_field_name: redirect_to,
+            'redirect_field_name': redirect_field_name,
+            'next': redirect_to,
         }, RequestContext(request))
 
 

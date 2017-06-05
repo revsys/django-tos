@@ -1,3 +1,5 @@
-<h2>Terms of Service as of {{ tos.created|date:"SHORT_DATE_FORMAT" }}</h2>
+{% load i18n %}
+
+<h2>{% blocktrans %}Terms of Service as of {{ tos.created|date:"SHORT_DATE_FORMAT" }}{% endblocktrans %}</h2>
 
 {{ tos.content|safe }}
