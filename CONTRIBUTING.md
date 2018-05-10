@@ -61,6 +61,8 @@ To run the tests, clone the repository, and then:
     # Setup the virtual environment
     virtualenv env
     source env/bin/activate
+    echo "2.7 3.4.0 3.5.0 3.6.0" | xargs -n1 pyenv install # this will take a while
+    pyenv local 2.7 3.4.0 3.5.0 3.6.0
     pip install django
     pip install -r requirements.txt
 
