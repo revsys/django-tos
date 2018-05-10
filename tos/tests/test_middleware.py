@@ -1,6 +1,6 @@
+from django import VERSION as DJANGO_VERSION
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
-from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
 
@@ -8,6 +8,11 @@ from tos.compat import get_cache, get_runtime_user_model
 from tos.middleware import UserAgreementMiddleware
 from tos.models import TermsOfService, UserAgreement
 from tos.signal_handlers import invalidate_cached_agreements
+
+if DJANGO_VERSION >= (1, 10, 0):
+    from django.urls import reverse
+else:
+    from django.core.urlresolvers import reverse
 
 
 @override_settings(
