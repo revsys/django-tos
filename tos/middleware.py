@@ -19,7 +19,9 @@ cache = get_cache(getattr(settings, 'TOS_CACHE_NAME', 'default'))
 tos_check_url = reverse('tos_check_tos')
 
 
-class UserAgreementMiddleware(deprecation.MiddlewareMixin if DJANGO_VERSION >= (1, 10, 0) else object):
+class UserAgreementMiddleware(
+    deprecation.MiddlewareMixin if DJANGO_VERSION >= (1, 10, 0) else object
+):
     """
     Some middleware to check if users have agreed to the latest TOS
     """
@@ -53,33 +55,50 @@ class UserAgreementMiddleware(deprecation.MiddlewareMixin if DJANGO_VERSION >= (
 
         # Skip if the user is allowed to skip - for instance, if the user is an
         # admin or a staff member
-        if cache.get('django:tos:skip_tos_check:{0}'.format(str(user_id)), False, version=key_version):
+        if cache.get(
+            'django:tos:skip_tos_check:{0}'.format(str(user_id)),
+            False,
+            version=key_version
+        ):
             return None
 
         # Ping the cache for the user agreement
-        user_agreed = cache.get('django:tos:agreed:{0}'.format(str(user_id)), None, version=key_version)
+        user_agreed = cache.get(
+            'django:tos:agreed:{0}'.format(str(user_id)),
+            None,
+            version=key_version
+        )
 
         # If the cache is missing this user
         if user_agreed is None:
+
             # Grab the data from the database
             user_agreed = UserAgreement.objects.filter(
                 user__id=user_id,
-                terms_of_service__active=True).exists()
+                terms_of_service__active=True
+            ).exists()
 
             # Set the value in the cache
-            cache.set('django:tos:agreed:{0}'.format(user_id), user_agreed, version=key_version)
+            cache.set(
+                'django:tos:agreed:{0}'.format(user_id),
+                user_agreed,
+                version=key_version
+            )
 
         if not user_agreed:
-            # Confirm view uses these session keys. Non-middleware flow sets them in login view,
+            # Confirm view uses these session keys.
+            # Non-middleware flow sets them in login view,
             # so we need to set them here.
             request.session['tos_user'] = user_id
             request.session['tos_backend'] = user_auth_backend
 
-            response = HttpResponseRedirect('{0}?{1}={2}'.format(
-                tos_check_url,
-                REDIRECT_FIELD_NAME,
-                request.path_info,
-            ))
+            response = HttpResponseRedirect(
+                '{0}?{1}={2}'.format(
+                    tos_check_url,
+                    REDIRECT_FIELD_NAME,
+                    request.path_info,
+                )
+            )
             add_never_cache_headers(response)
             return response
 

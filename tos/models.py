@@ -4,6 +4,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from tos.compat import get_fk_user_model
 
+
 class NoActiveTermsOfService(ValidationError):
     pass
 
@@ -28,11 +29,11 @@ class TermsOfServiceManager(models.Manager):
 
 class TermsOfService(BaseModel):
     active = models.BooleanField(
-                default=False,
-                verbose_name=_('active'),
-                help_text=_(
-                    u'Only one terms of service is allowed to be active'
-                )
+        default=False,
+        verbose_name=_('active'),
+        help_text=_(
+            u'Only one terms of service is allowed to be active'
+        )
     )
     content = models.TextField(verbose_name=_('content'), blank=True)
     objects = TermsOfServiceManager()
@@ -50,7 +51,9 @@ class TermsOfService(BaseModel):
         return '{0}: {1}'.format(self.created, active)
 
     def save(self, *args, **kwargs):
-        """ Ensure we're being saved properly """
+        """
+        Ensure we're being saved properly.
+        """
 
         if self.active:
             TermsOfService.objects.exclude(id=self.id).update(active=False)
@@ -68,12 +71,22 @@ class TermsOfService(BaseModel):
 
 
 class UserAgreement(BaseModel):
-    terms_of_service = models.ForeignKey(TermsOfService, related_name='terms', on_delete=models.DO_NOTHING)
-    user = models.ForeignKey(get_fk_user_model(), related_name='user_agreement', on_delete=models.DO_NOTHING)
+    terms_of_service = models.ForeignKey(
+        TermsOfService,
+        related_name='terms',
+        on_delete=models.DO_NOTHING,
+    )
+    user = models.ForeignKey(
+        get_fk_user_model(),
+        related_name='user_agreement',
+        on_delete=models.DO_NOTHING,
+    )
 
     def __unicode__(self):
-        return u'%s agreed to TOS: %s' % (self.user.username,
-                                          unicode(self.terms_of_service))
+        return u'%s agreed to TOS: %s' % (
+            self.user.username,
+            unicode(self.terms_of_service)
+        )
 
 
 def has_user_agreed_latest_tos(user):

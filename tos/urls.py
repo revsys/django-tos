@@ -4,7 +4,8 @@ from tos.compat import patterns
 from tos.views import check_tos, TosView
 
 
-urlpatterns = patterns('',
+urlpatterns = patterns(
+    '',
     # Terms of Service conform
     url(r'^confirm/$', check_tos, name='tos_check_tos'),
 

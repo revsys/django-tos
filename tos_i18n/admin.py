@@ -9,5 +9,6 @@ from tos.models import TermsOfService
 class TranslatedTermsOfServiceAdmin(TermsOfServiceAdmin, TranslationAdmin):
     pass
 
+
 admin.site.unregister(TermsOfService)
 admin.site.register(TermsOfService, TranslatedTermsOfServiceAdmin)

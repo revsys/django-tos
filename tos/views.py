@@ -10,13 +10,17 @@ from django.contrib.sites.models import Site
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, render_to_response
 from django.template import RequestContext
+from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_protect
 from django.views.generic import TemplateView
-from django.utils.translation import ugettext_lazy as _
 
-from tos.compat import get_runtime_user_model, get_request_site
-from tos.models import has_user_agreed_latest_tos, TermsOfService, UserAgreement
+from tos.compat import get_request_site, get_runtime_user_model
+from tos.models import (
+    TermsOfService,
+    UserAgreement,
+    has_user_agreed_latest_tos,
+)
 
 
 class TosView(TemplateView):
@@ -40,7 +44,7 @@ def _redirect_to(redirect_to):
     # should be allowed. This regex checks if there is a '//' *before* a
     # question mark.
     elif '//' in redirect_to and re.match(r'[^\?]*//', redirect_to):
-            redirect_to = settings.LOGIN_REDIRECT_URL
+        redirect_to = settings.LOGIN_REDIRECT_URL
     return redirect_to
 
 
@@ -49,15 +53,25 @@ def _redirect_to(redirect_to):
 def check_tos(request, template_name='tos/tos_check.html',
               redirect_field_name=REDIRECT_FIELD_NAME,):
 
-    redirect_to = _redirect_to(request.POST.get(redirect_field_name, request.GET.get(redirect_field_name, '')))
+    redirect_to = _redirect_to(
+        request.POST.get(
+            redirect_field_name,
+            request.GET.get(redirect_field_name, '')
+        )
+    )
     tos = TermsOfService.objects.get_current_tos()
     if request.method == "POST":
         if request.POST.get("accept", "") == "accept":
-            user = get_runtime_user_model().objects.get(pk=request.session['tos_user'])
+            user = get_runtime_user_model().objects.get(
+                pk=request.session['tos_user']
+            )
             user.backend = request.session['tos_backend']
 
             # Save the user agreement to the new TOS
-            UserAgreement.objects.get_or_create(terms_of_service=tos, user=user)
+            UserAgreement.objects.get_or_create(
+                terms_of_service=tos,
+                user=user,
+            )
 
             # Log the user in
             auth_login(request, user)
@@ -69,7 +83,10 @@ def check_tos(request, template_name='tos/tos_check.html',
         else:
             messages.error(
                 request,
-                _(u"You cannot login without agreeing to the terms of this site.")
+                _(
+                    u"You cannot login without agreeing "
+                    u"to the terms of this site."
+                )
             )
 
     if DJANGO_VERSION >= (1, 10, 0):
@@ -93,7 +110,10 @@ def login(request, template_name='registration/login.html',
           authentication_form=AuthenticationForm):
     """Displays the login form and handles the login action."""
 
-    redirect_to = request.POST.get(redirect_field_name, request.GET.get(redirect_field_name, ''))
+    redirect_to = request.POST.get(
+        redirect_field_name,
+        request.GET.get(redirect_field_name, '')
+    )
 
     if request.method == "POST":
         form = authentication_form(data=request.POST)
@@ -122,7 +142,7 @@ def login(request, template_name='registration/login.html',
                 # Pass the used backend as well since django will require it
                 # and it can only be optained by calling authenticate, but we
                 # got no credentials in check_tos.
-                # see: https://docs.djangoproject.com/en/1.6/topics/auth/default/#how-to-log-a-user-in
+                # see: https://docs.djangoproject.com/en/dev/topics/auth/default/#how-to-log-a-user-in
                 request.session['tos_backend'] = user.backend
 
                 return render_to_response('tos/tos_check.html', {

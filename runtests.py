@@ -1,20 +1,20 @@
 #!/usr/bin/env python
+import logging
 import sys
 
 import django
-
+from django import VERSION as DJANGO_VERSION
 from django.conf import settings
 from django.core.management import execute_from_command_line
 
-
 if not settings.configured:
-    settings.configure(
-        DATABASES={
+    django_settings = {
+        'DATABASES': {
             'default': {
                 'ENGINE': 'django.db.backends.sqlite3',
             }
         },
-        INSTALLED_APPS=[
+        'INSTALLED_APPS': [
             'django.contrib.auth',
             'django.contrib.contenttypes',
             'django.contrib.sessions',
@@ -23,14 +23,7 @@ if not settings.configured:
             'tos',
             'tos.tests'
         ],
-        MIDDLEWARE_CLASSES=[
-            'django.middleware.common.CommonMiddleware',
-            'django.contrib.sessions.middleware.SessionMiddleware',
-            'django.middleware.csrf.CsrfViewMiddleware',
-            'django.contrib.auth.middleware.AuthenticationMiddleware',
-            'django.contrib.messages.middleware.MessageMiddleware',
-        ],
-        TEMPLATES=[
+        'TEMPLATES': [
             {
                 'BACKEND': 'django.template.backends.django.DjangoTemplates',
                 'DIRS': [],
@@ -45,10 +38,10 @@ if not settings.configured:
                 },
             },
         ],
-        ROOT_URLCONF='tos.tests.test_urls',
-        LOGIN_URL='/login/',
-        SITE_ID='1',
-        CACHES = {
+        'ROOT_URLCONF': 'tos.tests.test_urls',
+        'LOGIN_URL': '/login/',
+        'SITE_ID': '1',
+        'CACHES': {
             'default': {
                 'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
             },
@@ -56,14 +49,37 @@ if not settings.configured:
                 'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
             }
         },
-        TOS_CACHE_NAME = 'tos' 
-    )
+        'TOS_CACHE_NAME': 'tos'
+    }
+
+    if DJANGO_VERSION >= (1, 10, 0):
+        django_settings["MIDDLEWARE"] = [
+            'django.middleware.security.SecurityMiddleware',
+            'django.contrib.sessions.middleware.SessionMiddleware',
+            'django.middleware.common.CommonMiddleware',
+            'django.middleware.csrf.CsrfViewMiddleware',
+            'django.contrib.auth.middleware.AuthenticationMiddleware',
+            'django.contrib.messages.middleware.MessageMiddleware',
+            'django.middleware.clickjacking.XFrameOptionsMiddleware',
+        ]
+    else:
+        django_settings["MIDDLEWARE_CLASSES"] = [
+            'django.middleware.security.SecurityMiddleware',
+            'django.contrib.sessions.middleware.SessionMiddleware',
+            'django.middleware.common.CommonMiddleware',
+            'django.middleware.csrf.CsrfViewMiddleware',
+            'django.contrib.auth.middleware.AuthenticationMiddleware',
+            'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
+            'django.contrib.messages.middleware.MessageMiddleware',
+            'django.middleware.clickjacking.XFrameOptionsMiddleware',
+        ],
+
+    settings.configure(**django_settings)
 
 
-import logging
 logging.basicConfig(
-    level = logging.DEBUG,
-    format = '%(asctime)s %(levelname)s %(message)s',
+    level=logging.DEBUG,
+    format='%(asctime)s %(levelname)s %(message)s',
 )
 logging.disable(logging.CRITICAL)
 
