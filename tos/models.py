@@ -68,8 +68,8 @@ class TermsOfService(BaseModel):
 
 
 class UserAgreement(BaseModel):
-    terms_of_service = models.ForeignKey(TermsOfService, related_name='terms', on_delete=models.DO_NOTHING)
-    user = models.ForeignKey(get_fk_user_model(), related_name='user_agreement', on_delete=models.DO_NOTHING)
+    terms_of_service = models.ForeignKey(TermsOfService, related_name='terms', on_delete=models.CASCADE)
+    user = models.ForeignKey(get_fk_user_model(), related_name='user_agreement', on_delete=models.CASCADE)
 
     def __unicode__(self):
         return u'%s agreed to TOS: %s' % (self.user.username,
