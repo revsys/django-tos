@@ -1,14 +1,8 @@
-from django import VERSION as DJANGO_VERSION
 from django.conf import settings
 from django.test import TestCase
 
-from tos.compat import get_runtime_user_model
+from tos.compat import get_runtime_user_model, reverse
 from tos.models import TermsOfService, UserAgreement, has_user_agreed_latest_tos
-
-if DJANGO_VERSION >= (1, 10, 0):
-    from django.urls import reverse
-else:
-    from django.core.urlresolvers import reverse
 
 
 class TestViews(TestCase):
