@@ -1,19 +1,21 @@
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
-from django.core.urlresolvers import reverse
 from django.test import TestCase
-from django.test.utils import override_settings
+from django.test.utils import modify_settings
 
-from tos.compat import get_cache, get_runtime_user_model
+from tos.compat import get_cache, get_runtime_user_model, reverse
 from tos.middleware import UserAgreementMiddleware
 from tos.models import TermsOfService, UserAgreement
 from tos.signal_handlers import invalidate_cached_agreements
 
 
-@override_settings(
-    MIDDLEWARE_CLASSES=settings.MIDDLEWARE_CLASSES + [
-        'tos.middleware.UserAgreementMiddleware',
-    ]
+@modify_settings(
+    MIDDLEWARE_CLASSES={
+        'append': 'tos.middleware.UserAgreementMiddleware',
+    },
+    MIDDLEWARE={
+        'append': 'tos.middleware.UserAgreementMiddleware',
+    },
 )
 class TestMiddleware(TestCase):
 
@@ -86,10 +88,13 @@ class TestMiddleware(TestCase):
         self.assertEqual(response.url.replace('http://testserver', ''), str(reverse('index')))
 
 
-@override_settings(
-    MIDDLEWARE_CLASSES=settings.MIDDLEWARE_CLASSES + [
-        'tos.middleware.UserAgreementMiddleware',
-    ]
+@modify_settings(
+    MIDDLEWARE_CLASSES={
+        'append': 'tos.middleware.UserAgreementMiddleware',
+    },
+    MIDDLEWARE={
+        'append': 'tos.middleware.UserAgreementMiddleware',
+    },
 )
 class BumpCoverage(TestCase):
 

@@ -1,5 +1,6 @@
 import django
 from django.conf import settings
+from django.utils import deprecation
 
 
 def patterns(mod, *urls):
@@ -50,7 +51,26 @@ def get_cache(cache_name):
         return get_cache(cache_name)
 
 
+def get_middleware_mixin():
+    if django.VERSION >= (1, 10, 0):
+        return deprecation.MiddlewareMixin
+    else:
+        return object
+
+
+def get_middleware_settings_key():
+    if django.VERSION >= (1, 10, 0):
+        return 'MIDDLEWARE'
+    else:
+        return 'MIDDLEWARE_CLASSES'
+
+
 if django.VERSION < (1, 5):
     from django.templatetags.future import url
 else:
     from django.template.defaulttags import url
+
+if django.VERSION >= (1, 10, 0):
+    from django.urls import reverse
+else:
+    from django.core.urlresolvers import reverse

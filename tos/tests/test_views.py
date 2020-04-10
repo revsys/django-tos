@@ -1,8 +1,7 @@
 from django.conf import settings
-from django.core.urlresolvers import reverse
 from django.test import TestCase
 
-from tos.compat import get_runtime_user_model
+from tos.compat import get_runtime_user_model, reverse
 from tos.models import TermsOfService, UserAgreement, has_user_agreed_latest_tos
 
 
@@ -80,14 +79,14 @@ class TestViews(TestCase):
         self.assertTrue(has_user_agreed_latest_tos(self.user1))
 
         response = self.client.post(self.login_url, dict(username='user1',
-            password='user1pass'))
+                                                         password='user1pass'))
         self.assertEqual(302, response.status_code)
 
     def test_redirect_security(self):
         """ redirect to outside url not allowed, should redirect to login url"""
 
         response = self.client.post(self.login_url, dict(username='user1',
-            password='user1pass', next='http://example.com'))
+                                                         password='user1pass', next='http://example.com'))
         self.assertEqual(302, response.status_code)
         self.assertIn(settings.LOGIN_REDIRECT_URL, response._headers['location'][1])
 

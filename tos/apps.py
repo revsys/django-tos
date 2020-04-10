@@ -4,7 +4,11 @@ from django.db.models.signals import pre_save
 
 from .signal_handlers import invalidate_cached_agreements
 
-MIDDLEWARES = getattr(settings, 'MIDDLEWARE_CLASSES', [])
+from .compat import get_middleware_settings_key
+
+
+middleware_settings_key = get_middleware_settings_key()
+MIDDLEWARES = getattr(settings, middleware_settings_key, [])
 
 
 class TOSConfig(AppConfig):
