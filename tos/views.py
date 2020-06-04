@@ -15,7 +15,7 @@ from django.views.decorators.csrf import csrf_protect
 from django.views.generic import TemplateView
 from django.utils.translation import ugettext_lazy as _
 
-from tos.compat import get_runtime_user_model, get_request_site
+from tos.compat import get_cache, get_runtime_user_model, get_request_site
 from tos.models import has_user_agreed_latest_tos, TermsOfService, UserAgreement
 
 
@@ -108,6 +108,10 @@ def login(request, template_name='registration/login.html',
 
                 # Log the user in.
                 auth_login(request, user)
+
+                # Evict a cached acceptance record to force a fetch
+                cache = get_cache(getattr(settings, 'TOS_CACHE_NAME', 'default'))
+                cache.delete('django:tos:agreed:{0}'.format(user_id))
 
                 if request.session.test_cookie_worked():
                     request.session.delete_test_cookie()
