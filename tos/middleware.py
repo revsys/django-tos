@@ -59,8 +59,9 @@ class UserAgreementMiddleware(middleware_mixin):
                 user__id=user_id,
                 terms_of_service__active=True).exists()
 
-            # Set the value in the cache
-            cache.set('django:tos:agreed:{0}'.format(user_id), user_agreed, version=key_version)
+            # Set the value in the cache if True
+            if user_agreed:
+                cache.set('django:tos:agreed:{0}'.format(user_id), user_agreed, version=key_version)
 
         if not user_agreed:
             # Confirm view uses these session keys. Non-middleware flow sets them in login view,
