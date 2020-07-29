@@ -1,1 +1,3 @@
-coverage
+Django==2.2.14
+coverage==5.2.1
+coveralls==2.1.1
