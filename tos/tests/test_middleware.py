@@ -20,6 +20,10 @@ from tos.signal_handlers import invalidate_cached_agreements
 class TestMiddleware(TestCase):
 
     def setUp(self):
+        # Clear cache between tests
+        cache = get_cache(getattr(settings, 'TOS_CACHE_NAME', 'default'))
+        cache.clear()
+
         # User that has agreed to TOS
         self.user1 = get_runtime_user_model().objects.create_user('user1', 'user1@example.com', 'user1pass')
 
@@ -62,6 +66,26 @@ class TestMiddleware(TestCase):
 
         # Confirm redirects.
         self.assertEqual(response.status_code, 302)
+
+    def test_invalidate_cache_on_accept_fix_redirect_loop(self):
+        """
+        Make sure accepting doesnt send you right back to tos page.
+        """
+        self.assertFalse(UserAgreement.objects.filter(terms_of_service=self.tos1, user=self.user2).exists())
+
+        self.client.login(username='user2', password='user2pass')
+        response = self.client.get(reverse('index'))
+        self.assertRedirects(response, self.redirect_page)
+
+        # Make sure confirm works after middleware redirect.
+        response = self.client.post(reverse('tos_check_tos'), {'accept': 'accept'})
+
+        self.assertTrue(UserAgreement.objects.filter(terms_of_service=self.tos1, user=self.user2).exists())
+
+        response = self.client.get(reverse('index'))
+        self.assertEqual(response.status_code, 200)
+
+        self.assertIn('index', str(response.content))
 
     def test_middleware_doesnt_redirect(self):
         """User that has accepted TOS should get 200."""
