@@ -15,8 +15,11 @@ from django.views.decorators.csrf import csrf_protect
 from django.views.generic import TemplateView
 from django.utils.translation import ugettext_lazy as _
 
-from tos.compat import get_runtime_user_model, get_request_site
+from tos.compat import get_cache, get_runtime_user_model, get_request_site
 from tos.models import has_user_agreed_latest_tos, TermsOfService, UserAgreement
+
+
+cache = get_cache(getattr(settings, 'TOS_CACHE_NAME', 'default'))
 
 
 class TosView(TemplateView):
@@ -58,6 +61,9 @@ def check_tos(request, template_name='tos/tos_check.html',
 
             # Save the user agreement to the new TOS
             UserAgreement.objects.get_or_create(terms_of_service=tos, user=user)
+
+            key_version = cache.get('django:tos:key_version')
+            cache.delete('django:tos:agreed:{0}'.format(user.pk), version=key_version)
 
             # Log the user in
             auth_login(request, user)
