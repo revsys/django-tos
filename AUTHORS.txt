@@ -1,4 +1,4 @@
-django-tos is a Revolution Systems (http://www.revsys.com/) project.
+django-tos is a Revolution Systems (https://www.revsys.com/) project.
 
 The following is a list of much appreciated contributors:
 
