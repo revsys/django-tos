@@ -65,6 +65,17 @@ def get_middleware_settings_key():
         return 'MIDDLEWARE_CLASSES'
 
 
+def get_render(request, template_name, context):
+    if django.VERSION >= (1, 10, 0):
+        from django.shortcuts import render
+        return render(request, template_name, context)
+
+    else:
+        from django.shortcuts import render_to_response
+        from django.template import RequestContext
+        return render_to_response(template_name, context, RequestContext(request))
+
+
 if django.VERSION < (1, 5):
     from django.templatetags.future import url
 else:
