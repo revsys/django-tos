@@ -2,10 +2,6 @@
 django-tos
 ==========
 
-.. image:: https://secure.travis-ci.org/revsys/django-tos.png
-    :alt: Build Status
-    :target: http://travis-ci.org/revsys/django-tos
-
 This project gives the admin the ability to reset terms of agreement with the end users. It tracks when TOS are changed and when users agree to the new TOS.
 
 Summary
