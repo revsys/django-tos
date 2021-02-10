@@ -8,14 +8,12 @@ from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.sites.models import Site
 from django.http import HttpResponseRedirect
-from django.shortcuts import render, render_to_response
-from django.template import RequestContext
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_protect
 from django.views.generic import TemplateView
 from django.utils.translation import ugettext_lazy as _
 
-from tos.compat import get_cache, get_runtime_user_model, get_request_site
+from tos.compat import get_cache, get_runtime_user_model, get_request_site, get_render
 from tos.models import has_user_agreed_latest_tos, TermsOfService, UserAgreement
 
 
@@ -77,19 +75,12 @@ def check_tos(request, template_name='tos/tos_check.html',
                 request,
                 _(u"You cannot login without agreeing to the terms of this site.")
             )
-
-    if DJANGO_VERSION >= (1, 10, 0):
-        return render(request, template_name, {
-            'tos': tos,
-            'redirect_field_name': redirect_field_name,
-            'next': redirect_to,
-        })
-    else:
-        return render_to_response(template_name, {
-            'tos': tos,
-            'redirect_field_name': redirect_field_name,
-            'next': redirect_to,
-        }, RequestContext(request))
+    context = {
+        'tos': tos,
+        'redirect_field_name': redirect_field_name,
+        'next': redirect_to,
+    }
+    return get_render(request, template_name, context)
 
 
 @csrf_protect
@@ -131,11 +122,12 @@ def login(request, template_name='registration/login.html',
                 # see: https://docs.djangoproject.com/en/1.6/topics/auth/default/#how-to-log-a-user-in
                 request.session['tos_backend'] = user.backend
 
-                return render_to_response('tos/tos_check.html', {
-                    redirect_field_name: redirect_to,
+                context = {
+                    'redirect_field_name': redirect_to,
                     'tos': TermsOfService.objects.get_current_tos()
-                }, RequestContext(request))
+                }
 
+                return get_render(request, 'tos/tos_check.html', context)
     else:
         form = authentication_form(request)
 
@@ -146,9 +138,12 @@ def login(request, template_name='registration/login.html',
     else:
         current_site = get_request_site()(request)
 
-    return render_to_response(template_name, {
+    context = {
         'form': form,
-        redirect_field_name: redirect_to,
+        'redirect_field_name': redirect_to,
         'site': current_site,
         'site_name': current_site.name,
-    }, RequestContext(request))
+    }
+    return get_render(request, template_name, context)
+
+
