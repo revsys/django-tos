@@ -7,11 +7,6 @@ import django
 from django.conf import settings
 from django.core.management import execute_from_command_line
 
-from tos.compat import get_middleware_settings_key
-
-
-middleware_settings_key = get_middleware_settings_key()
-
 
 if not settings.configured:
     django_settings = {
@@ -55,30 +50,19 @@ if not settings.configured:
                 'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
             }
         },
+        'SECRET_KEY': '7v%d@z##e=8z5#oc=cc-o%!cka5ibyy7#9r!#2fyiwn7ki020y',
         'TOS_CACHE_NAME': 'tos' 
     }
 
-    if django.VERSION >= (1, 10, 0):
-        django_settings[middleware_settings_key] = [
-            'django.middleware.security.SecurityMiddleware',
-            'django.contrib.sessions.middleware.SessionMiddleware',
-            'django.middleware.common.CommonMiddleware',
-            'django.middleware.csrf.CsrfViewMiddleware',
-            'django.contrib.auth.middleware.AuthenticationMiddleware',
-            'django.contrib.messages.middleware.MessageMiddleware',
-            'django.middleware.clickjacking.XFrameOptionsMiddleware',
-        ]
-    else:
-        django_settings[middleware_settings_key] = [
-            'django.middleware.security.SecurityMiddleware',
-            'django.contrib.sessions.middleware.SessionMiddleware',
-            'django.middleware.common.CommonMiddleware',
-            'django.middleware.csrf.CsrfViewMiddleware',
-            'django.contrib.auth.middleware.AuthenticationMiddleware',
-            'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
-            'django.contrib.messages.middleware.MessageMiddleware',
-            'django.middleware.clickjacking.XFrameOptionsMiddleware',
-        ]
+    django_settings['MIDDLEWARE'] = [
+        'django.middleware.security.SecurityMiddleware',
+        'django.contrib.sessions.middleware.SessionMiddleware',
+        'django.middleware.common.CommonMiddleware',
+        'django.middleware.csrf.CsrfViewMiddleware',
+        'django.contrib.auth.middleware.AuthenticationMiddleware',
+        'django.contrib.messages.middleware.MessageMiddleware',
+        'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    ]
 
     settings.configure(**django_settings)
 

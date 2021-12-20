@@ -1,18 +1,16 @@
 from django.conf import settings
-from django.contrib.auth import REDIRECT_FIELD_NAME
+from django.contrib.auth import REDIRECT_FIELD_NAME, get_user_model
+from django.core.cache import caches
 from django.test import TestCase
 from django.test.utils import modify_settings
+from django.urls import reverse
 
-from tos.compat import get_cache, get_runtime_user_model, reverse
 from tos.middleware import UserAgreementMiddleware
 from tos.models import TermsOfService, UserAgreement
 from tos.signal_handlers import invalidate_cached_agreements
 
 
 @modify_settings(
-    MIDDLEWARE_CLASSES={
-        'append': 'tos.middleware.UserAgreementMiddleware',
-    },
     MIDDLEWARE={
         'append': 'tos.middleware.UserAgreementMiddleware',
     },
@@ -21,15 +19,15 @@ class TestMiddleware(TestCase):
 
     def setUp(self):
         # Clear cache between tests
-        cache = get_cache(getattr(settings, 'TOS_CACHE_NAME', 'default'))
+        cache = caches[getattr(settings, 'TOS_CACHE_NAME', 'default')]
         cache.clear()
 
         # User that has agreed to TOS
-        self.user1 = get_runtime_user_model().objects.create_user('user1', 'user1@example.com', 'user1pass')
+        self.user1 = get_user_model().objects.create_user('user1', 'user1@example.com', 'user1pass')
 
         # User that has not yet agreed to TOS
-        self.user2 = get_runtime_user_model().objects.create_user('user2', 'user2@example.com', 'user2pass')
-        self.user3 = get_runtime_user_model().objects.create_user('user3', 'user3@example.com', 'user3pass')
+        self.user2 = get_user_model().objects.create_user('user2', 'user2@example.com', 'user2pass')
+        self.user3 = get_user_model().objects.create_user('user3', 'user3@example.com', 'user3pass')
 
         self.tos1 = TermsOfService.objects.create(
             content="first edition of the terms of service",
@@ -124,7 +122,7 @@ class BumpCoverage(TestCase):
 
     def setUp(self):
         # User that has agreed to TOS
-        self.user1 = get_runtime_user_model().objects.create_user('user1', 'user1@example.com', 'user1pass')
+        self.user1 = get_user_model().objects.create_user('user1', 'user1@example.com', 'user1pass')
 
         self.tos1 = TermsOfService.objects.create(
             content="first edition of the terms of service",
@@ -155,7 +153,7 @@ class BumpCoverage(TestCase):
         self.assertIsNone(response)
 
     def test_skip_for_user(self):
-        cache = get_cache(getattr(settings, 'TOS_CACHE_NAME', 'default'))
+        cache = caches[getattr(settings, 'TOS_CACHE_NAME', 'default')]
 
         key_version = cache.get('django:tos:key_version')
 
@@ -167,7 +165,7 @@ class BumpCoverage(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_invalidate_cached_agreements(self):
-        cache = get_cache(getattr(settings, 'TOS_CACHE_NAME', 'default'))
+        cache = caches[getattr(settings, 'TOS_CACHE_NAME', 'default')]
 
         invalidate_cached_agreements(TermsOfService, {})
 

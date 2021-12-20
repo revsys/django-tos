@@ -5,19 +5,22 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login as auth_login
 from django.contrib.auth import REDIRECT_FIELD_NAME
+from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.sites.models import Site
+from django.contrib.sites.requests import RequestSite
+from django.core.cache import caches
 from django.http import HttpResponseRedirect
+from django.shortcuts import render
+from django.utils.translation import gettext_lazy as _
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_protect
 from django.views.generic import TemplateView
-from django.utils.translation import gettext_lazy as _
 
-from tos.compat import get_cache, get_runtime_user_model, get_request_site, get_render
 from tos.models import has_user_agreed_latest_tos, TermsOfService, UserAgreement
 
 
-cache = get_cache(getattr(settings, 'TOS_CACHE_NAME', 'default'))
+cache = caches[getattr(settings, 'TOS_CACHE_NAME', 'default')]
 
 
 class TosView(TemplateView):
@@ -54,7 +57,7 @@ def check_tos(request, template_name='tos/tos_check.html',
     tos = TermsOfService.objects.get_current_tos()
     if request.method == "POST":
         if request.POST.get("accept", "") == "accept":
-            user = get_runtime_user_model().objects.get(pk=request.session['tos_user'])
+            user = get_user_model().objects.get(pk=request.session['tos_user'])
             user.backend = request.session['tos_backend']
 
             # Save the user agreement to the new TOS
@@ -80,7 +83,7 @@ def check_tos(request, template_name='tos/tos_check.html',
         'redirect_field_name': redirect_field_name,
         'next': redirect_to,
     }
-    return get_render(request, template_name, context)
+    return render(request, template_name, context)
 
 
 @csrf_protect
@@ -127,7 +130,7 @@ def login(request, template_name='registration/login.html',
                     'tos': TermsOfService.objects.get_current_tos()
                 }
 
-                return get_render(request, 'tos/tos_check.html', context)
+                return render(request, 'tos/tos_check.html', context)
     else:
         form = authentication_form(request)
 
@@ -136,7 +139,7 @@ def login(request, template_name='registration/login.html',
     if Site._meta.installed:
         current_site = Site.objects.get_current()
     else:
-        current_site = get_request_site()(request)
+        current_site = RequestSite(request)
 
     context = {
         'form': form,
@@ -144,6 +147,4 @@ def login(request, template_name='registration/login.html',
         'site': current_site,
         'site_name': current_site.name,
     }
-    return get_render(request, template_name, context)
-
-
+    return render(request, template_name, context)

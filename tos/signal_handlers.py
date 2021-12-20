@@ -1,9 +1,9 @@
 from django.conf import settings
+from django.core.cache import caches
 
-from .compat import get_cache
 
 # Force the user to create a separate cache
-cache = get_cache(getattr(settings, 'TOS_CACHE_NAME', 'default'))
+cache = caches[getattr(settings, 'TOS_CACHE_NAME', 'default')]
 
 
 def invalidate_cached_agreements(TermsOfService, instance, **kwargs):

@@ -1,8 +1,8 @@
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from tos.compat import get_fk_user_model
 
 class NoActiveTermsOfService(ValidationError):
     pass
@@ -69,7 +69,7 @@ class TermsOfService(BaseModel):
 
 class UserAgreement(BaseModel):
     terms_of_service = models.ForeignKey(TermsOfService, related_name='terms', on_delete=models.CASCADE)
-    user = models.ForeignKey(get_fk_user_model(), related_name='user_agreement', on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='user_agreement', on_delete=models.CASCADE)
 
     def __str__(self):
         return '%s agreed to TOS: %s' % (self.user.username,
