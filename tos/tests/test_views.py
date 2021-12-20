@@ -89,7 +89,7 @@ class TestViews(TestCase):
         response = self.client.post(self.login_url, dict(username='user1',
                                                          password='user1pass', next='http://example.com'))
         self.assertEqual(302, response.status_code)
-        self.assertIn(settings.LOGIN_REDIRECT_URL, response._headers['location'][1])
+        self.assertIn(settings.LOGIN_REDIRECT_URL, response.url)
 
     def test_need_to_log_in(self):
         """ GET to login url shows login tempalte."""
