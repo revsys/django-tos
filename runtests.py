@@ -41,7 +41,7 @@ if not settings.configured:
         ],
         'ROOT_URLCONF': 'tos.tests.test_urls',
         'LOGIN_URL': '/login/',
-        'SITE_ID': '1',
+        'SITE_ID': 1,
         'CACHES': {
             'default': {
                 'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
