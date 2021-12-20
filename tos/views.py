@@ -11,7 +11,7 @@ from django.http import HttpResponseRedirect
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_protect
 from django.views.generic import TemplateView
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from tos.compat import get_cache, get_runtime_user_model, get_request_site, get_render
 from tos.models import has_user_agreed_latest_tos, TermsOfService, UserAgreement
