@@ -111,9 +111,6 @@ class TestMiddleware(TestCase):
 
 
 @modify_settings(
-    MIDDLEWARE_CLASSES={
-        'append': 'tos.middleware.UserAgreementMiddleware',
-    },
     MIDDLEWARE={
         'append': 'tos.middleware.UserAgreementMiddleware',
     },
@@ -142,6 +139,9 @@ class BumpCoverage(TestCase):
     def test_ajax_request(self):
         class Request(object):
             method = 'GET'
+            META = {
+                'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'
+            }
 
             def is_ajax(self):
                 return True

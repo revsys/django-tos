@@ -25,7 +25,7 @@ class UserAgreementMiddleware(MiddlewareMixin):
             return None
 
         # Ignore ajax requests
-        if request.is_ajax():
+        if request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
             return None
 
         # Don't redirect users when they're trying to get to the confirm page
