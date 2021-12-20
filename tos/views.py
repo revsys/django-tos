@@ -73,7 +73,7 @@ def check_tos(request, template_name='tos/tos_check.html',
         else:
             messages.error(
                 request,
-                _(u"You cannot login without agreeing to the terms of this site.")
+                _("You cannot login without agreeing to the terms of this site.")
             )
     context = {
         'tos': tos,

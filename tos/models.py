@@ -22,7 +22,7 @@ class TermsOfServiceManager(models.Manager):
             return self.get(active=True)
         except self.model.DoesNotExist:
             raise NoActiveTermsOfService(
-                u'Please create an active Terms-of-Service'
+                'Please create an active Terms-of-Service'
             )
 
 
@@ -31,7 +31,7 @@ class TermsOfService(BaseModel):
                 default=False,
                 verbose_name=_('active'),
                 help_text=_(
-                    u'Only one terms of service is allowed to be active'
+                    'Only one terms of service is allowed to be active'
                 )
     )
     content = models.TextField(verbose_name=_('content'), blank=True)
@@ -43,7 +43,7 @@ class TermsOfService(BaseModel):
         verbose_name = _('Terms of Service')
         verbose_name_plural = _('Terms of Service')
 
-    def __unicode__(self):
+    def __str__(self):
         active = 'inactive'
         if self.active:
             active = 'active'
@@ -61,7 +61,7 @@ class TermsOfService(BaseModel):
                     .filter(active=True)\
                     .exists():
                 raise NoActiveTermsOfService(
-                    u'One of the terms of service must be marked active'
+                    'One of the terms of service must be marked active'
                 )
 
         super(TermsOfService, self).save(*args, **kwargs)
@@ -71,8 +71,8 @@ class UserAgreement(BaseModel):
     terms_of_service = models.ForeignKey(TermsOfService, related_name='terms', on_delete=models.CASCADE)
     user = models.ForeignKey(get_fk_user_model(), related_name='user_agreement', on_delete=models.CASCADE)
 
-    def __unicode__(self):
-        return u'%s agreed to TOS: %s' % (self.user.username,
+    def __str__(self):
+        return '%s agreed to TOS: %s' % (self.user.username,
                                           unicode(self.terms_of_service))
 
 
