@@ -1,7 +1,8 @@
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.test import TestCase
+from django.urls import reverse
 
-from tos.compat import get_runtime_user_model, reverse
 from tos.models import TermsOfService, UserAgreement, has_user_agreed_latest_tos
 
 
@@ -9,10 +10,10 @@ class TestViews(TestCase):
 
     def setUp(self):
         # User that has agreed to TOS
-        self.user1 = get_runtime_user_model().objects.create_user('user1', 'user1@example.com', 'user1pass')
+        self.user1 = get_user_model().objects.create_user('user1', 'user1@example.com', 'user1pass')
 
         # User that has not yet agreed to TOS
-        self.user2 = get_runtime_user_model().objects.create_user('user2', 'user2@example.com', 'user2pass')
+        self.user2 = get_user_model().objects.create_user('user2', 'user2@example.com', 'user2pass')
 
         self.tos1 = TermsOfService.objects.create(
             content="first edition of the terms of service",
@@ -88,7 +89,7 @@ class TestViews(TestCase):
         response = self.client.post(self.login_url, dict(username='user1',
                                                          password='user1pass', next='http://example.com'))
         self.assertEqual(302, response.status_code)
-        self.assertIn(settings.LOGIN_REDIRECT_URL, response._headers['location'][1])
+        self.assertIn(settings.LOGIN_REDIRECT_URL, response.url)
 
     def test_need_to_log_in(self):
         """ GET to login url shows login tempalte."""

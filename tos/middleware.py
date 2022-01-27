@@ -1,21 +1,26 @@
 from django.conf import settings
 from django.contrib.auth import SESSION_KEY as session_key
 from django.contrib.auth import REDIRECT_FIELD_NAME
+from django.core.cache import caches
 from django.http import HttpResponseRedirect
+from django.urls import reverse
 from django.utils.cache import add_never_cache_headers
+from django.utils.deprecation import MiddlewareMixin
 
-from .compat import get_cache, get_middleware_mixin, reverse
 from .models import UserAgreement
 
 
-cache = get_cache(getattr(settings, 'TOS_CACHE_NAME', 'default'))
+cache = caches[getattr(settings, 'TOS_CACHE_NAME', 'default')]
 tos_check_url = reverse('tos_check_tos')
-middleware_mixin = get_middleware_mixin()
 
-class UserAgreementMiddleware(middleware_mixin):
+
+class UserAgreementMiddleware(MiddlewareMixin):
     """
     Some middleware to check if users have agreed to the latest TOS
     """
+
+    def __init__(self, get_response=None):
+        self.get_response = get_response
 
     def process_request(self, request):
         # Don't get in the way of any mutating requests
@@ -23,7 +28,7 @@ class UserAgreementMiddleware(middleware_mixin):
             return None
 
         # Ignore ajax requests
-        if request.is_ajax():
+        if request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
             return None
 
         # Don't redirect users when they're trying to get to the confirm page
