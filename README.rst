@@ -18,7 +18,7 @@ Terms Of Service Installation
 
 2. Add ``tos`` to your ``INSTALLED_APPS`` setting.
 
-3. Sync your database with ``python manage.py migrate`` or ``python manage.py syncdb`` for Django < 1.7.
+3. Sync your database with ``python manage.py migrate``
 
 Configuration
 =============
@@ -71,7 +71,7 @@ Advantages
 * Skips the agreement check when the user is anonymous or not signed in
 * Skips the agreement check when the request is AJAX
 * Skips the agreement check when the request isn't a ``GET`` request (to avoid getting in the way of data mutations)
-  
+
 Disadvantages
 -------------
 
@@ -101,7 +101,7 @@ Option 2 Configuration
 2. Optional: Since the cache used by TOS will be overwhelmingly read-heavy, you can use a separate cache specifically for TOS. To do so, create a new cache in your project's ``settings.py``:
 
    .. code-block:: python
-   
+
        CACHES = {
            ...
            # The cache specifically for django-tos
