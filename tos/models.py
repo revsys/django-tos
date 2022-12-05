@@ -72,8 +72,10 @@ class UserAgreement(BaseModel):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='user_agreement', on_delete=models.CASCADE)
 
     def __str__(self):
-        return '%s agreed to TOS: %s' % (self.user.username,
-                                          unicode(self.terms_of_service))
+        return '%s agreed to TOS: %s' % (
+            self.user.username,
+            self.terms_of_service,
+        )
 
 
 def has_user_agreed_latest_tos(user):
