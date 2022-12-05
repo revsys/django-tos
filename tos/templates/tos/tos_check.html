@@ -2,7 +2,9 @@
 {% if note %}
     <h2>{{ note }}</h2>
 {% else %}
-    <h2>{% blocktrans %}Terms of Service as of {{ tos.created|date:"SHORT_DATE_FORMAT" }}{% endblocktrans %}</h2>
+    {% blocktranslate with tos_created=tos.created|date:"SHORT_DATE_FORMAT" %}
+    Terms of Service as of {{ tos_created }}
+    {% endblocktranslate %}
 {% endif %}
 
 {{ tos.content|safe }}
