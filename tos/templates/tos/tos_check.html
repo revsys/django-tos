@@ -1,6 +1,6 @@
 {% load i18n %}
 {% if note %}
-    <h2>{{ note }}</note>
+    <h2>{{ note }}</h2>
 {% else %}
     <h2>{% blocktrans %}Terms of Service as of {{ tos.created|date:"SHORT_DATE_FORMAT" }}{% endblocktrans %}</h2>
 {% endif %}
