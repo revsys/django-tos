@@ -23,20 +23,7 @@ class UserAgreementMiddleware(MiddlewareMixin):
         self.get_response = get_response
 
     def process_request(self, request):
-        # Don't get in the way of any mutating requests
-        if request.method != 'GET':
-            return None
-
-        # Ignore ajax requests
-        if request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
-            return None
-
-        # Don't redirect users when they're trying to get to the confirm page
-        if request.path_info == tos_check_url:
-            return None
-
-        # If the user doesn't have a user ID, ignore them - they're anonymous
-        if not request.session.get(session_key, None):
+        if self.should_fast_skip(request):
             return None
 
         # Grab the user ID from the session so we avoid hitting the database
@@ -44,7 +31,6 @@ class UserAgreementMiddleware(MiddlewareMixin):
         # NOTE: We use the user ID because it's not user-settable and it won't
         #       ever change (usernames and email addresses can change)
         user_id = request.session['_auth_user_id']
-        user_auth_backend = request.session['_auth_user_backend']
 
         # Get the cache prefix
         key_version = cache.get('django:tos:key_version')
@@ -59,19 +45,14 @@ class UserAgreementMiddleware(MiddlewareMixin):
 
         # If the cache is missing this user
         if user_agreed is None:
-            # Grab the data from the database
-            user_agreed = UserAgreement.objects.filter(
-                user__id=user_id,
-                terms_of_service__active=True).exists()
-
-            # Set the value in the cache
-            cache.set(f'django:tos:agreed:{user_id}', user_agreed, version=key_version)
+            # Check the database and cache the result
+            user_agreed = self.get_and_cache_agreement_from_db(user_id, key_version)
 
         if not user_agreed:
             # Confirm view uses these session keys. Non-middleware flow sets them in login view,
             # so we need to set them here.
             request.session['tos_user'] = user_id
-            request.session['tos_backend'] = user_auth_backend
+            request.session['tos_backend'] = request.session['_auth_user_backend']
 
             response = HttpResponseRedirect('{0}?{1}={2}'.format(
                 tos_check_url,
@@ -82,3 +63,34 @@ class UserAgreementMiddleware(MiddlewareMixin):
             return response
 
         return None
+
+    def should_fast_skip(self, request):
+        '''Check if we should skip TOS checks without hitting the cache or database'''
+        # Don't get in the way of any mutating requests
+        if request.method != 'GET':
+            return True
+
+        # Ignore ajax requests
+        if request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
+            return True
+
+        # Don't redirect users when they're trying to get to the confirm page
+        if request.path_info == tos_check_url:
+            return True
+
+        # If the user doesn't have a user ID, ignore them - they're anonymous
+        if not request.session.get(session_key, None):
+            return True
+
+        return False
+
+    def get_and_cache_agreement_from_db(self, user_id, key_version):
+        # Grab the data from the database
+        user_agreed = UserAgreement.objects.filter(
+            user__id=user_id,
+            terms_of_service__active=True).exists()
+
+        # Set the value in the cache
+        cache.set(f'django:tos:agreed:{user_id}', user_agreed, version=key_version)
+
+        return user_agreed
