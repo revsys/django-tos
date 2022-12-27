@@ -157,7 +157,7 @@ class BumpCoverage(TestCase):
 
         key_version = cache.get('django:tos:key_version')
 
-        cache.set('django:tos:skip_tos_check:{0}'.format(str(self.user1.id)), True, version=key_version)
+        cache.set(f'django:tos:skip_tos_check:{self.user1.id}', True, version=key_version)
 
         self.client.login(username='user1', password='user1pass')
         response = self.client.get(reverse('index'))

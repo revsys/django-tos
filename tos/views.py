@@ -64,7 +64,7 @@ def check_tos(request, template_name='tos/tos_check.html',
             UserAgreement.objects.get_or_create(terms_of_service=tos, user=user)
 
             key_version = cache.get('django:tos:key_version')
-            cache.delete('django:tos:agreed:{0}'.format(user.pk), version=key_version)
+            cache.delete(f'django:tos:agreed:{user.pk}', version=key_version)
 
             # Log the user in
             auth_login(request, user)
