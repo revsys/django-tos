@@ -51,11 +51,11 @@ class UserAgreementMiddleware(MiddlewareMixin):
 
         # Skip if the user is allowed to skip - for instance, if the user is an
         # admin or a staff member
-        if cache.get('django:tos:skip_tos_check:{0}'.format(str(user_id)), False, version=key_version):
+        if cache.get(f'django:tos:skip_tos_check:{user_id}', False, version=key_version):
             return None
 
         # Ping the cache for the user agreement
-        user_agreed = cache.get('django:tos:agreed:{0}'.format(str(user_id)), None, version=key_version)
+        user_agreed = cache.get(f'django:tos:agreed:{user_id}', None, version=key_version)
 
         # If the cache is missing this user
         if user_agreed is None:
@@ -65,7 +65,7 @@ class UserAgreementMiddleware(MiddlewareMixin):
                 terms_of_service__active=True).exists()
 
             # Set the value in the cache
-            cache.set('django:tos:agreed:{0}'.format(user_id), user_agreed, version=key_version)
+            cache.set(f'django:tos:agreed:{user_id}', user_agreed, version=key_version)
 
         if not user_agreed:
             # Confirm view uses these session keys. Non-middleware flow sets them in login view,
