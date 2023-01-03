@@ -167,14 +167,14 @@ class BumpCoverage(TestCase):
     def test_invalidate_cached_agreements(self):
         cache = caches[getattr(settings, 'TOS_CACHE_NAME', 'default')]
 
-        invalidate_cached_agreements(TermsOfService, {})
+        invalidate_cached_agreements(TermsOfService)
 
         key_version = cache.get('django:tos:key_version')
 
-        invalidate_cached_agreements(TermsOfService, {})
+        invalidate_cached_agreements(TermsOfService)
 
         self.assertEqual(cache.get('django:tos:key_version'), key_version+1)
 
-        invalidate_cached_agreements(TermsOfService, {}, raw=True)
+        invalidate_cached_agreements(TermsOfService, raw=True)
 
         self.assertEqual(cache.get('django:tos:key_version'), key_version+1)

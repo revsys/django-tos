@@ -19,4 +19,4 @@ class TOSConfig(AppConfig):
                              dispatch_uid='invalidate_cached_agreements')
 
             # Create the TOS key version immediately
-            invalidate_cached_agreements(TermsOfService, None)
+            invalidate_cached_agreements(TermsOfService)

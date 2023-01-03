@@ -6,7 +6,7 @@ from django.core.cache import caches
 cache = caches[getattr(settings, 'TOS_CACHE_NAME', 'default')]
 
 
-def invalidate_cached_agreements(TermsOfService, instance, **kwargs):
+def invalidate_cached_agreements(sender, **kwargs):
     if kwargs.get('raw', False):
         return
 
