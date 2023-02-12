@@ -3,7 +3,7 @@ from django.contrib.auth import SESSION_KEY as session_key
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.core.cache import caches
 from django.http import HttpResponseRedirect
-from django.urls import reverse
+from django.urls import reverse_lazy
 from django.utils.cache import add_never_cache_headers
 from django.utils.deprecation import MiddlewareMixin
 
@@ -11,7 +11,7 @@ from .models import UserAgreement
 
 
 cache = caches[getattr(settings, 'TOS_CACHE_NAME', 'default')]
-tos_check_url = reverse('tos_check_tos')
+tos_check_url = reverse_lazy('tos_check_tos')
 
 
 class UserAgreementMiddleware(MiddlewareMixin):
