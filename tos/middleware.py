@@ -22,6 +22,49 @@ class UserAgreementMiddleware(MiddlewareMixin):
     def __init__(self, get_response=None):
         self.get_response = get_response
 
+    def __call__(self, request):
+        # Check if we should skip TOS checks without hitting the cache or database
+        if self.should_fast_skip(request):
+            return self.get_response(request)
+
+        # Grab the user ID from the session so we avoid hitting the database
+        # for the user object.
+        # NOTE: We use the user ID because it's not user-settable and it won't
+        #       ever change (usernames and email addresses can change)
+        user_id = request.session['_auth_user_id']
+
+        # Get the cache prefix
+        key_version = cache.get('django:tos:key_version')
+
+        # Skip if the user is allowed to skip - for instance, if the user is an
+        # admin or a staff member
+        if cache.get(f'django:tos:skip_tos_check:{user_id}', False, version=key_version):
+            return self.get_response(request)
+
+        # Ping the cache for the user agreement
+        user_agreed = cache.get(f'django:tos:agreed:{user_id}', None, version=key_version)
+
+        # If the cache is missing this user
+        if user_agreed is None:
+            # Check the database and cache the result
+            user_agreed = self.get_and_cache_agreement_from_db(user_id, key_version)
+
+        if not user_agreed:
+            # Confirm view uses these session keys. Non-middleware flow sets them in login view,
+            # so we need to set them here.
+            request.session['tos_user'] = user_id
+            request.session['tos_backend'] = request.session['_auth_user_backend']
+
+            response = HttpResponseRedirect('{0}?{1}={2}'.format(
+                tos_check_url,
+                REDIRECT_FIELD_NAME,
+                request.path_info,
+            ))
+            add_never_cache_headers(response)
+            return response
+
+        return self.get_response(request)
+
     def process_request(self, request):
         if self.should_fast_skip(request):
             return None
