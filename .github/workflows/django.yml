@@ -5,6 +5,7 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -27,6 +28,9 @@ jobs:
             django-version: Django==4.0
 
           - python-version: "3.8"
+            django-version: Django==4.1
+
+          - python-version: "3.8"
             django-version: Django==4.2
 
           - python-version: "3.9"
@@ -39,6 +43,9 @@ jobs:
             django-version: Django==4.0
 
           - python-version: "3.9"
+            django-version: Django==4.1
+
+          - python-version: "3.9"
             django-version: Django==4.2
 
           - python-version: "3.10"
@@ -48,7 +55,13 @@ jobs:
             django-version: Django==4.0
 
           - python-version: "3.10"
+            django-version: Django==4.1
+
+          - python-version: "3.10"
             django-version: Django==4.2
+
+          - python-version: "3.11"
+            django-version: Django==3.1
 
           - python-version: "3.11"
             django-version: Django==4.2

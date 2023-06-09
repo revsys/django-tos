@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME, get_user_model
 from django.core.cache import caches
+from django.http import HttpResponse
 from django.test import TestCase
 from django.test.utils import modify_settings
 from django.urls import reverse
@@ -146,7 +147,7 @@ class BumpCoverage(TestCase):
             def is_ajax(self):
                 return True
 
-        mw = UserAgreementMiddleware()
+        mw = UserAgreementMiddleware(HttpResponse())
 
         response = mw.process_request(Request())
 

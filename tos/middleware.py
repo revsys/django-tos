@@ -19,8 +19,8 @@ class UserAgreementMiddleware(MiddlewareMixin):
     Some middleware to check if users have agreed to the latest TOS
     """
 
-    def __init__(self, get_response=None):
-        self.get_response = get_response
+    def __init__(self, get_response):
+        super().__init__(get_response)
 
     def process_request(self, request):
         if self.should_fast_skip(request):
