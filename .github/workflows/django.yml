@@ -61,7 +61,7 @@ jobs:
             django-version: Django==4.2
 
           - python-version: "3.11"
-            django-version: Django==3.1
+            django-version: Django==4.1
 
           - python-version: "3.11"
             django-version: Django==4.2

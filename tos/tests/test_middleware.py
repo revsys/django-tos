@@ -1,9 +1,10 @@
+from django import VERSION as DJANGO_VERSION
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME, get_user_model
 from django.core.cache import caches
 from django.http import HttpResponse
 from django.test import TestCase
-from django.test.utils import modify_settings
+from django.test.utils import modify_settings, skipIf
 from django.urls import reverse
 
 from tos.middleware import UserAgreementMiddleware
@@ -137,6 +138,24 @@ class BumpCoverage(TestCase):
             user=self.user1
         )
 
+    # Test the backward compatibility of the middleware
+    @skipIf(DJANGO_VERSION >= (4,0), 'Django < 4.0 only')
+    def test_ajax_request_pre_40(self):
+        class Request(object):
+            method = 'GET'
+            META = {
+                'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'
+            }
+
+            def is_ajax(self):
+                return True
+
+        mw = UserAgreementMiddleware()
+
+        response = mw.process_request(Request())
+
+        self.assertIsNone(response)
+
     def test_ajax_request(self):
         class Request(object):
             method = 'GET'
@@ -179,3 +198,9 @@ class BumpCoverage(TestCase):
         invalidate_cached_agreements(TermsOfService, raw=True)
 
         self.assertEqual(cache.get('django:tos:key_version'), key_version+1)
+
+    # Test that as of Django 4.0, get_response is required
+    @skipIf(DJANGO_VERSION < (4,0), 'Django 4.0+ only')
+    def test_creation_of_middleware(self):
+        with self.assertRaises(TypeError):
+            UserAgreementMiddleware()

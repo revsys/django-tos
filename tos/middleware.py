@@ -1,3 +1,4 @@
+from django import VERSION as DJANGO_VERSION
 from django.conf import settings
 from django.contrib.auth import SESSION_KEY as session_key
 from django.contrib.auth import REDIRECT_FIELD_NAME
@@ -19,8 +20,13 @@ class UserAgreementMiddleware(MiddlewareMixin):
     Some middleware to check if users have agreed to the latest TOS
     """
 
-    def __init__(self, get_response):
-        super().__init__(get_response)
+    def __init__(self, get_response = None):
+        if DJANGO_VERSION < (4,0):
+            self.get_response = get_response
+        else:
+            if get_response is None:
+                raise TypeError('get_response cannot be None in Django 4.0 and later')
+            super().__init__(get_response)
 
     def process_request(self, request):
         if self.should_fast_skip(request):
