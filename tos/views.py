@@ -1,14 +1,12 @@
 import re
 
-from django import VERSION as DJANGO_VERSION
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login as auth_login
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.sites.models import Site
-from django.contrib.sites.requests import RequestSite
+from django.contrib.sites.shortcuts import get_current_site
 from django.core.cache import caches
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
@@ -136,10 +134,7 @@ def login(request, template_name='registration/login.html',
 
     request.session.set_test_cookie()
 
-    if Site._meta.installed:
-        current_site = Site.objects.get_current()
-    else:
-        current_site = RequestSite(request)
+    current_site = get_current_site(request)
 
     context = {
         'form': form,
