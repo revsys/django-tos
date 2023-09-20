@@ -231,7 +231,7 @@ How to migrate tos with South
 `````````````````````````````
 
 Here is some step-by-step example how to convert your legacy django-tos
-instalation synced using syncdb into a translated django-tos-i18n with South
+installation synced using syncdb into a translated django-tos-i18n with South
 migrations.
 
 1. Inform South that you want to store migrations in custom place by putting
