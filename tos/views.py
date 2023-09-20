@@ -25,7 +25,7 @@ class TosView(TemplateView):
     template_name = "tos/tos.html"
 
     def get_context_data(self, **kwargs):
-        context = super(TosView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context['tos'] = TermsOfService.objects.get_current_tos()
         return context
 

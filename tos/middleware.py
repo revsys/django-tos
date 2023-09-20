@@ -60,7 +60,7 @@ class UserAgreementMiddleware(MiddlewareMixin):
             request.session['tos_user'] = user_id
             request.session['tos_backend'] = request.session['_auth_user_backend']
 
-            response = HttpResponseRedirect('{0}?{1}={2}'.format(
+            response = HttpResponseRedirect('{}?{}={}'.format(
                 tos_check_url,
                 REDIRECT_FIELD_NAME,
                 request.path_info,

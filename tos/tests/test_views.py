@@ -38,7 +38,7 @@ class TestViews(TestCase):
 
         self.assertTrue(has_user_agreed_latest_tos(self.user1))
         login = self.client.login(username='user1', password='user1pass')
-        self.failUnless(login, 'Could not log in')
+        self.assertTrue(login, 'Could not log in')
         self.assertTrue(has_user_agreed_latest_tos(self.user1))
 
     def test_user_agrees_multiple_times(self):
@@ -69,7 +69,7 @@ class TestViews(TestCase):
 
         self.assertFalse(has_user_agreed_latest_tos(self.user2))
 
-        response = self.client.post(self.login_url, dict(username='user2', password='user2pass'))
+        response = self.client.post(self.login_url, {'username': 'user2', 'password': 'user2pass'})
         self.assertContains(response, "first edition of the terms of service")
 
         self.assertFalse(has_user_agreed_latest_tos(self.user2))
@@ -79,15 +79,15 @@ class TestViews(TestCase):
 
         self.assertTrue(has_user_agreed_latest_tos(self.user1))
 
-        response = self.client.post(self.login_url, dict(username='user1',
-                                                         password='user1pass'))
+        response = self.client.post(self.login_url, {'username': 'user1',
+                                                         'password': 'user1pass'})
         self.assertEqual(302, response.status_code)
 
     def test_redirect_security(self):
         """ redirect to outside url not allowed, should redirect to login url"""
 
-        response = self.client.post(self.login_url, dict(username='user1',
-                                                         password='user1pass', next='http://example.com'))
+        response = self.client.post(self.login_url, {'username': 'user1',
+                                                         'password': 'user1pass', 'next': 'http://example.com'})
         self.assertEqual(302, response.status_code)
         self.assertIn(settings.LOGIN_REDIRECT_URL, response.url)
 
@@ -106,7 +106,7 @@ class TestViews(TestCase):
 
         self.assertFalse(has_user_agreed_latest_tos(self.user2))
 
-        response = self.client.post(self.login_url, dict(username='user2', password='user2pass'))
+        response = self.client.post(self.login_url, {'username': 'user2', 'password': 'user2pass'})
         self.assertContains(response, "first edition of the terms of service")
         url = reverse('tos_check_tos')
         response = self.client.post(url, {'accept': 'reject'})
@@ -117,7 +117,7 @@ class TestViews(TestCase):
 
         self.assertFalse(has_user_agreed_latest_tos(self.user2))
 
-        response = self.client.post(self.login_url, dict(username='user2', password='user2pass'))
+        response = self.client.post(self.login_url, {'username': 'user2', 'password': 'user2pass'})
         self.assertContains(response, "first edition of the terms of service")
         self.assertFalse(has_user_agreed_latest_tos(self.user2))
         url = reverse('tos_check_tos')
@@ -135,7 +135,7 @@ class TestViews(TestCase):
         self.assertFalse(has_user_agreed_latest_tos(self.user1))
 
         # user1 agrees again
-        response = self.client.post(self.login_url, dict(username='user1', password='user1pass'))
+        response = self.client.post(self.login_url, {'username': 'user1', 'password': 'user1pass'})
         self.assertContains(response, "second edition of the terms of service")
         self.assertFalse(has_user_agreed_latest_tos(self.user2))
         url = reverse('tos_check_tos')

@@ -64,7 +64,7 @@ class TermsOfService(BaseModel):
                     'One of the terms of service must be marked active'
                 )
 
-        super(TermsOfService, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
 
 class UserAgreement(BaseModel):

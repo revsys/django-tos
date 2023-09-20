@@ -52,7 +52,7 @@ if not settings.configured:
             }
         },
         'SECRET_KEY': '7v%d@z##e=8z5#oc=cc-o%!cka5ibyy7#9r!#2fyiwn7ki020y',
-        'TOS_CACHE_NAME': 'tos' 
+        'TOS_CACHE_NAME': 'tos'
     }
 
     django_settings['MIDDLEWARE'] = [

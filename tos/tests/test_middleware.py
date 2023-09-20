@@ -46,7 +46,7 @@ class TestMiddleware(TestCase):
             user=self.user1
         )
 
-        self.redirect_page = '{0}?{1}={2}'.format(
+        self.redirect_page = '{}?{}={}'.format(
             reverse('tos_check_tos'),
             REDIRECT_FIELD_NAME,
             reverse('index'),
@@ -141,7 +141,7 @@ class BumpCoverage(TestCase):
     # Test the backward compatibility of the middleware
     @skipIf(DJANGO_VERSION >= (4,0), 'Django < 4.0 only')
     def test_ajax_request_pre_40(self):
-        class Request(object):
+        class Request:
             method = 'GET'
             META = {
                 'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'
@@ -157,7 +157,7 @@ class BumpCoverage(TestCase):
         self.assertIsNone(response)
 
     def test_ajax_request(self):
-        class Request(object):
+        class Request:
             method = 'GET'
             META = {
                 'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'
