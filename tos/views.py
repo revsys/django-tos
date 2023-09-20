@@ -118,7 +118,7 @@ def login(request, template_name='registration/login.html',
 
                 request.session['tos_user'] = user.pk
                 # Pass the used backend as well since django will require it
-                # and it can only be optained by calling authenticate, but we
+                # and it can only be obtained by calling authenticate, but we
                 # got no credentials in check_tos.
                 # see: https://docs.djangoproject.com/en/1.6/topics/auth/default/#how-to-log-a-user-in
                 request.session['tos_backend'] = user.backend

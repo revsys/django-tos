@@ -92,7 +92,7 @@ class TestViews(TestCase):
         self.assertIn(settings.LOGIN_REDIRECT_URL, response.url)
 
     def test_need_to_log_in(self):
-        """ GET to login url shows login tempalte."""
+        """ GET to login url shows login template."""
 
         response = self.client.get(self.login_url)
         self.assertContains(response, "Dummy login template.")

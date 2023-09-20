@@ -69,7 +69,7 @@ class TestMiddleware(TestCase):
 
     def test_invalidate_cache_on_accept_fix_redirect_loop(self):
         """
-        Make sure accepting doesnt send you right back to tos page.
+        Make sure accepting doesn't send you right back to tos page.
         """
         self.assertFalse(UserAgreement.objects.filter(terms_of_service=self.tos1, user=self.user2).exists())
 
