@@ -34,7 +34,7 @@ class TestModels(TestCase):
 
     def test_terms_of_service(self):
 
-        self.assertEquals(TermsOfService.objects.count(), 2)
+        self.assertEqual(TermsOfService.objects.count(), 2)
 
         # order is by -created
         latest = TermsOfService.objects.latest()
@@ -99,7 +99,7 @@ class TestManager(TestCase):
             active=True
         )
 
-        self.assertEquals(TermsOfService.objects.get_current_tos(), tos1)
+        self.assertEqual(TermsOfService.objects.get_current_tos(), tos1)
 
     def test_terms_of_service_manager_raises_error(self):
 
