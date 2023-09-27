@@ -124,7 +124,7 @@ Option 2 Configuration
 
    .. code-block:: python
 
-       MIDDLEWARE_CLASSES = (
+       MIDDLEWARE = (
            ...
            # Terms of service checks
            'tos.middleware.UserAgreementMiddleware',
