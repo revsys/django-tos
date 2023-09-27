@@ -94,9 +94,9 @@ Option 2 Configuration
    .. code-block:: python
 
        # terms of service links
-       urlpatterns += patterns('',
-           url(r'^terms-of-service/', include('tos.urls')),
-       )
+       urlpatterns += [
+           path('terms-of-service/', include('tos.urls')),
+       ]
 
 2. Optional: Since the cache used by TOS will be overwhelmingly read-heavy, you can use a separate cache specifically for TOS. To do so, create a new cache in your project's ``settings.py``:
 
