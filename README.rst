@@ -48,7 +48,7 @@ In your root urlconf file ``urls.py`` add:
 Option 2: Middleware Check
 ``````````````````````````
 
-This option uses the ``incr`` methods for the configured Django cache. If you are using ``django-tos`` in a complex or parallel environment, be sure to use a cache backend that supports atomic increment operations. For more information, see the notes at the end of `this section of the Django documentation <https://docs.djangoproject.com/en/1.9/topics/cache/#basic-usage>`_.
+This option uses the ``incr`` methods for the configured Django cache. If you are using ``django-tos`` in a complex or parallel environment, be sure to use a cache backend that supports atomic increment operations. For more information, see the notes at the end of `this section of the Django documentation <https://docs.djangoproject.com/en/4.2/topics/cache/#basic-usage>`_.
 
 Also, to ensure that warming the cache with users who can skip the agreement check works properly, you will need to include ``tos`` before your app (``myapp`` in the example) in your ``INSTALLED_APPS`` setting:
 
