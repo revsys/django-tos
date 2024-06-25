@@ -1,3 +1,5 @@
+import warnings
+
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -21,9 +23,12 @@ class TermsOfServiceManager(models.Manager):
         try:
             return self.get(active=True)
         except self.model.DoesNotExist:
-            raise NoActiveTermsOfService(
-                'Please create an active Terms-of-Service'
-            )
+            if settings.DEBUG:
+                warnings.warn("There is no active Terms-of-Service")
+            else:
+                raise NoActiveTermsOfService(
+                    'Please create an active Terms-of-Service'
+                )
 
 
 class TermsOfService(BaseModel):
@@ -60,9 +65,12 @@ class TermsOfService(BaseModel):
                     .exclude(id=self.id)\
                     .filter(active=True)\
                     .exists():
-                raise NoActiveTermsOfService(
-                    'One of the terms of service must be marked active'
-                )
+                if settings.DEBUG:
+                    warnings.warn("There is no active Terms-of-Service")
+                else:
+                    raise NoActiveTermsOfService(
+                        'One of the terms of service must be marked active'
+                    )
 
         super().save(*args, **kwargs)
 

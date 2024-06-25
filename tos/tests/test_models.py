@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 from tos.models import (
     NoActiveTermsOfService,
@@ -104,3 +104,39 @@ class TestManager(TestCase):
     def test_terms_of_service_manager_raises_error(self):
 
         self.assertRaises(NoActiveTermsOfService, TermsOfService.objects.get_current_tos)
+
+
+class TestNoActiveTOS(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        # Use bulk_create to avoid calling the model's save() method
+        TermsOfService.objects.bulk_create([
+            TermsOfService(
+                content="The only TOS",
+                active=False,
+            )
+        ])
+
+    @classmethod
+    def tearDownClass(cls):
+        TermsOfService.objects.all().delete()
+
+    @override_settings(DEBUG=True)
+    def test_model_save_raises_warning(self):
+        with self.assertWarns(Warning):
+            TermsOfService.objects.first().save()
+
+    @override_settings(DEBUG=True)
+    def test_get_current_tos_raises_warning(self):
+        with self.assertWarns(Warning):
+            TermsOfService.objects.get_current_tos()
+
+    @override_settings(DEBUG=False)
+    def test_model_save_raises_exception(self):
+        with self.assertRaises(NoActiveTermsOfService):
+            TermsOfService.objects.first().save()
+
+    @override_settings(DEBUG=False)
+    def test_get_current_tos_raises_exception(self):
+        with self.assertRaises(NoActiveTermsOfService):
+            TermsOfService.objects.get_current_tos()
