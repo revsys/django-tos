@@ -15,56 +15,14 @@ jobs:
       max-parallel: 4
       matrix:
         include:
-          - python-version: "3.7"
-            django-version: Django==2.2
-
-          - python-version: "3.7"
-            django-version: Django==3.2
-
-          - python-version: "3.8"
-            django-version: Django==3.2
-
-          - python-version: "3.8"
-            django-version: Django==4.0
-
-          - python-version: "3.8"
-            django-version: Django==4.1
-
-          - python-version: "3.8"
-            django-version: Django==4.2
-
-          - python-version: "3.9"
-            django-version: Django==2.2
-
-          - python-version: "3.9"
-            django-version: Django==3.2
-
-          - python-version: "3.9"
-            django-version: Django==4.0
-
-          - python-version: "3.9"
-            django-version: Django==4.1
-
           - python-version: "3.9"
             django-version: Django==4.2
-
-          - python-version: "3.10"
-            django-version: Django==3.2
-
-          - python-version: "3.10"
-            django-version: Django==4.0
-
-          - python-version: "3.10"
-            django-version: Django==4.1
 
           - python-version: "3.10"
             django-version: Django==4.2
 
           - python-version: "3.10"
             django-version: Django==5.0
-
-          - python-version: "3.11"
-            django-version: Django==4.1
 
           - python-version: "3.11"
             django-version: Django==4.2
@@ -78,6 +36,8 @@ jobs:
           - python-version: "3.12"
             django-version: Django==5.0
 
+          - python-version: "3.13"
+            django-version: Django==5.1
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
