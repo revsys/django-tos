@@ -31,3 +31,5 @@ omit =
     *src*
     *manage*
     *settings*
+    .*venv*/
+    *venv*/
