@@ -49,6 +49,11 @@ class TestModels(TestCase):
         # latest is active though
         self.assertTrue(latest.active)
 
+    def test_terms_of_service_str(self):
+        self.assertEqual(str(self.tos1), f"{self.tos1.created}: active")
+
+        self.assertEqual(str(self.tos2), f"{self.tos2.created}: inactive")
+
     def test_validation_error_all_set_false(self):
         """
         If you try and set all to false the model will throw a ValidationError
@@ -56,6 +61,24 @@ class TestModels(TestCase):
 
         self.tos1.active = False
         self.assertRaises(ValidationError, self.tos1.save)
+
+    def test_user_agreement_str(self):
+        ua1 = UserAgreement.objects.create(
+            terms_of_service=self.tos1,
+            user=self.user1,
+        )
+        ua2 = UserAgreement.objects.create(
+            terms_of_service=self.tos1,
+            user=self.user3,
+        )
+        ua3 = UserAgreement.objects.create(
+            terms_of_service=self.tos2,
+            user=self.user1,
+        )
+
+        self.assertEqual(str(ua1), f"{self.user1.username} agreed to TOS: {self.tos1.created}: active")
+        self.assertEqual(str(ua2), f"{self.user3.username} agreed to TOS: {self.tos1.created}: active")
+        self.assertEqual(str(ua3), f"{self.user1.username} agreed to TOS: {self.tos2.created}: inactive")
 
     def test_user_agreement(self):
 
