@@ -9,6 +9,8 @@ class TOSConfig(AppConfig):
     name = 'tos'
     verbose_name = 'Terms Of Service'
 
+    default_auto_field = 'django.db.models.AutoField'
+
     def ready(self):
         MIDDLEWARES = getattr(settings, 'MIDDLEWARE', [])
         if 'tos.middleware.UserAgreementMiddleware' in MIDDLEWARES:
