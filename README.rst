@@ -185,9 +185,6 @@ Option 2 Configuration
                                Q(is_staff=True) | Q(is_superuser=True))
                        }, version=key_version)
 
-                   # Immediately add staff users to the cache
-                   add_staff_users_to_tos_cache()
-
 ===============
 django-tos-i18n
 ===============
