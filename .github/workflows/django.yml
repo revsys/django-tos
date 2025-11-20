@@ -47,8 +47,7 @@ jobs:
     - name: Install Dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install coverage
-        pip install ${{ matrix.django-version }}
+        pip install 'coverage[toml]' ${{ matrix.django-version }}
     - name: Run Tests
       run: coverage run runtests.py
 
