@@ -6,6 +6,9 @@ build-backend = "setuptools.build_meta"
 name = "django-tos"
 license = "BSD-3-Clause"
 version = "1.1.0"
+# Don't forget to update .github/workflows/django.yml when you update the
+# minimum version of Python
+requires-python = ">=3.9"
 authors = [{name = "Frank Wiles", email = "frank@revsys.com"}]
 description = "django-tos is a reusable Django application for setting Terms of Service."
 readme = "README.rst"
