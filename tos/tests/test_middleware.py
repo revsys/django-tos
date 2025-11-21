@@ -10,6 +10,7 @@ from django.urls import reverse
 from tos.middleware import UserAgreementMiddleware
 from tos.models import TermsOfService, UserAgreement
 from tos.signal_handlers import invalidate_cached_agreements
+from tos.utils import get_tos_cache
 
 
 @modify_settings(
@@ -21,7 +22,7 @@ class TestMiddleware(TestCase):
 
     def setUp(self):
         # Clear cache between tests
-        cache = caches[getattr(settings, 'TOS_CACHE_NAME', 'default')]
+        cache = get_tos_cache()
         cache.clear()
 
         # User that has agreed to TOS
@@ -173,7 +174,7 @@ class BumpCoverage(TestCase):
         self.assertIsNone(response)
 
     def test_skip_for_user(self):
-        cache = caches[getattr(settings, 'TOS_CACHE_NAME', 'default')]
+        cache = get_tos_cache()
 
         key_version = cache.get('django:tos:key_version')
 
@@ -185,7 +186,7 @@ class BumpCoverage(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_invalidate_cached_agreements(self):
-        cache = caches[getattr(settings, 'TOS_CACHE_NAME', 'default')]
+        cache = get_tos_cache()
 
         invalidate_cached_agreements(TermsOfService)
 

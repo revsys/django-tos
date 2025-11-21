@@ -1,0 +1,77 @@
+[build-system]
+requires = ["setuptools>=61.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "django-tos"
+license = "BSD-3-Clause"
+version = "1.1.0"
+# Don't forget to update .github/workflows/django.yml when you update the
+# minimum version of Python
+requires-python = ">=3.9"
+authors = [{name = "Frank Wiles", email = "frank@revsys.com"}]
+description = "django-tos is a reusable Django application for setting Terms of Service."
+readme = "README.rst"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Web Environment",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Framework :: Django",
+]
+dependencies = [
+    "django>=4.2.26",
+]
+
+[dependency-groups]
+dev = [
+    "coverage[toml]>=5.2.1",
+]
+
+[project.urls]
+Homepage = "http://github.com/revsys/django-tos/"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages]
+find = {namespaces = false}
+
+[tool.coverage.run]
+omit = [
+    "*tests*",
+    "*migrations*",
+    "*management*",
+    "*urls*",
+    "*site-packages*",
+    "*src*",
+    "*manage*",
+    "*settings*",
+    ".*venv*/",
+    "*venv*/",
+]
+
+[tool.coverage.report]
+# Regexes for lines to exclude from consideration
+exclude_lines = [
+    # Have to re-enable the standard pragma
+    "pragma: no cover",
+
+    # Don't complain about missing debug-only code:
+    "def __repr__",
+    "if self\\.debug",
+    "def __unicode__",
+    "def __repr__",
+    "if settings.DEBUG",
+    "raise NotImplementedError",
+    "from django\\.",
+
+    # Don't complain if tests don't hit defensive assertion code:
+    "raise AssertionError",
+    "raise NotImplementedError",
+
+    # Don't complain if non-runnable code isn't run:
+    "if 0:",
+    "if __name__ == .__main__.:",
+]

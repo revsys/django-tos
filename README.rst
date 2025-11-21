@@ -149,44 +149,13 @@ Option 2 Configuration
 
            def ready(self):
                if 'tos' in settings.INSTALLED_APPS:
-                   cache = caches[getattr(settings, 'TOS_CACHE_NAME', 'default')]
+                   from tos.utils import add_staff_users_to_tos_cache, set_staff_in_cache_for_tos
                    tos_app = apps.get_app_config('tos')
                    TermsOfService = tos_app.get_model('TermsOfService')
 
-                   @receiver(post_save, sender=get_user_model(), dispatch_uid='set_staff_in_cache_for_tos')
-                   def set_staff_in_cache_for_tos(user, instance, **kwargs):
-                       if kwargs.get('raw', False):
-                           return
+                   post_save.connect(set_staff_in_cache_for_tos, sender=get_user_model(), dispatch_uid='set_staff_in_cache_for_tos')
 
-                       # Get the cache prefix
-                       key_version = cache.get('django:tos:key_version')
-
-                       # If the user is staff allow them to skip the TOS agreement check
-                       if instance.is_staff or instance.is_superuser:
-                           cache.set('django:tos:skip_tos_check:{}'.format(instance.id), version=key_version)
-
-                       # But if they aren't make sure we invalidate them from the cache
-                       elif cache.get('django:tos:skip_tos_check:{}'.format(instance.id), False):
-                           cache.delete('django:tos:skip_tos_check:{}'.format(instance.id), version=key_version)
-
-                   @receiver(post_save, sender=TermsOfService, dispatch_uid='add_staff_users_to_tos_cache')
-                   def add_staff_users_to_tos_cache(*args, **kwargs):
-                       if kwargs.get('raw', False):
-                           return
-
-                       # Get the cache prefix
-                       key_version = cache.get('django:tos:key_version')
-
-                       # Efficiently cache all of the users who are allowed to skip the TOS
-                       # agreement check
-                       cache.set_many({
-                           'django:tos:skip_tos_check:{}'.format(staff_user.id): True
-                           for staff_user in get_user_model().objects.filter(
-                               Q(is_staff=True) | Q(is_superuser=True))
-                       }, version=key_version)
-
-                   # Immediately add staff users to the cache
-                   add_staff_users_to_tos_cache()
+                   post_save.connect(add_staff_users_to_tos_cache, sender=TermsOfService, dispatch_uid='add_staff_users_to_tos_cache')
 
 ===============
 django-tos-i18n
@@ -224,59 +193,6 @@ additional fields with name ``field_<lang_code>``, e.g. for given model:
         name = models.CharField(max_length=10)
 
 There will be generated fields: ``name`` , ``name_en``, ``name_pl``.
-
-You should probably migrate your database, and if you're using Django < 1.7 using South is recommended. These migrations should be kept in your local project.
-
-How to migrate tos with South
-`````````````````````````````
-
-Here is some step-by-step example how to convert your legacy django-tos
-installation synced using syncdb into a translated django-tos-i18n with South
-migrations.
-
-1. Inform South that you want to store migrations in custom place by putting
-   this in your Django settings file:
-
-   .. code-block:: python
-
-       SOUTH_MIGRATION_MODULES = {
-           'tos': 'YOUR_APP.migrations.tos',
-       }
-
-2. Add required directory (package):
-
-   .. code-block:: bash
-
-       mkdir -p YOUR_APP/migrations/tos
-       touch YOUR_APP/migrations/tos/__init__.py
-
-3. Create initial migration (referring to the database state as it is now):
-
-   .. code-block:: bash
-
-       python manage.py schemamigration --initial tos
-
-4. Fake migration (because the changes are already in the database):
-
-   .. code-block:: bash
-
-       python manage.py migrate tos --fake
-
-5. Install tos_i18n (and modeltranslation) to ``INSTALLED_APPS``:
-
-   .. code-block:: python
-
-       INSTALLED_APPS += ('modeltranslation', 'tos_i18n',)
-
-6. Make sure that the Django ``LANGUAGES`` setting is properly configured.
-
-7. Migrate what changed:
-
-   .. code-block:: bash
-
-    $ python manage.py schemamigration --auto tos
-    $ python migrate tos
-
 
 That's it. You are now running tos in i18n mode with the languages you declared
 in ``LANGUAGES`` setting. This will also make all required adjustments in the
