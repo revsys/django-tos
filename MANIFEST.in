@@ -1,1 +1,3 @@
 recursive-include tos/templates *
+exclude tos_i18n/tests.py
+prune tos/tests

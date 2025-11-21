@@ -185,9 +185,6 @@ Option 2 Configuration
                                Q(is_staff=True) | Q(is_superuser=True))
                        }, version=key_version)
 
-                   # Immediately add staff users to the cache
-                   add_staff_users_to_tos_cache()
-
 ===============
 django-tos-i18n
 ===============
@@ -224,59 +221,6 @@ additional fields with name ``field_<lang_code>``, e.g. for given model:
         name = models.CharField(max_length=10)
 
 There will be generated fields: ``name`` , ``name_en``, ``name_pl``.
-
-You should probably migrate your database, and if you're using Django < 1.7 using South is recommended. These migrations should be kept in your local project.
-
-How to migrate tos with South
-`````````````````````````````
-
-Here is some step-by-step example how to convert your legacy django-tos
-installation synced using syncdb into a translated django-tos-i18n with South
-migrations.
-
-1. Inform South that you want to store migrations in custom place by putting
-   this in your Django settings file:
-
-   .. code-block:: python
-
-       SOUTH_MIGRATION_MODULES = {
-           'tos': 'YOUR_APP.migrations.tos',
-       }
-
-2. Add required directory (package):
-
-   .. code-block:: bash
-
-       mkdir -p YOUR_APP/migrations/tos
-       touch YOUR_APP/migrations/tos/__init__.py
-
-3. Create initial migration (referring to the database state as it is now):
-
-   .. code-block:: bash
-
-       python manage.py schemamigration --initial tos
-
-4. Fake migration (because the changes are already in the database):
-
-   .. code-block:: bash
-
-       python manage.py migrate tos --fake
-
-5. Install tos_i18n (and modeltranslation) to ``INSTALLED_APPS``:
-
-   .. code-block:: python
-
-       INSTALLED_APPS += ('modeltranslation', 'tos_i18n',)
-
-6. Make sure that the Django ``LANGUAGES`` setting is properly configured.
-
-7. Migrate what changed:
-
-   .. code-block:: bash
-
-    $ python manage.py schemamigration --auto tos
-    $ python migrate tos
-
 
 That's it. You are now running tos in i18n mode with the languages you declared
 in ``LANGUAGES`` setting. This will also make all required adjustments in the
