@@ -1,10 +1,9 @@
-from django import VERSION as DJANGO_VERSION
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME, get_user_model
 from django.core.cache import caches
-from django.http import HttpResponse
+from django.db.models.signals import pre_save
 from django.test import TestCase
-from django.test.utils import modify_settings, skipIf
+from django.test.utils import modify_settings
 from django.urls import reverse
 
 from tos.middleware import UserAgreementMiddleware
@@ -118,10 +117,11 @@ class TestMiddleware(TestCase):
     },
 )
 class BumpCoverage(TestCase):
-
     def setUp(self):
         # User that has agreed to TOS
         self.user1 = get_user_model().objects.create_user('user1', 'user1@example.com', 'user1pass')
+        # User that has not aggreed to TOS
+        self.user2 = get_user_model().objects.create_user('user2', 'user2@example.com', 'user2pass')
 
         self.tos1 = TermsOfService.objects.create(
             content="first edition of the terms of service",
@@ -138,39 +138,11 @@ class BumpCoverage(TestCase):
             user=self.user1
         )
 
-    # Test the backward compatibility of the middleware
-    @skipIf(DJANGO_VERSION >= (4,0), 'Django < 4.0 only')
-    def test_ajax_request_pre_40(self):
-        class Request:
-            method = 'GET'
-            META = {
-                'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'
-            }
-
-            def is_ajax(self):
-                return True
-
-        mw = UserAgreementMiddleware()
-
-        response = mw.process_request(Request())
-
-        self.assertIsNone(response)
-
     def test_ajax_request(self):
-        class Request:
-            method = 'GET'
-            META = {
-                'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'
-            }
+        self.client.force_login(self.user2)
+        response = self.client.get('/', headers={'X-Requested-With': "XMLHttpRequest"})
 
-            def is_ajax(self):
-                return True
-
-        mw = UserAgreementMiddleware(HttpResponse())
-
-        response = mw.process_request(Request())
-
-        self.assertIsNone(response)
+        self.assertEqual(response.status_code, 200)
 
     def test_skip_for_user(self):
         cache = caches[getattr(settings, 'TOS_CACHE_NAME', 'default')]
@@ -183,6 +155,26 @@ class BumpCoverage(TestCase):
         response = self.client.get(reverse('index'))
 
         self.assertEqual(response.status_code, 200)
+
+    def test_use_cache(self):
+        cache = caches[getattr(settings, 'TOS_CACHE_NAME', 'default')]
+
+        key_version = cache.get('django:tos:key_version')
+
+        cache.set(f'django:tos:agreed:{self.user2.id}', True, version=key_version)
+
+        self.client.force_login(self.user2)
+
+        # Double check that there is no UserAgreement for user 2 in the
+        # database, that way we can be sure it is using the cached value
+        self.assertFalse(UserAgreement.objects.filter(user=self.user2).exists())
+
+        response = self.client.get(reverse('index'))
+
+        self.assertEqual(response.status_code, 200)
+        # Double check that it did actually load the index page, and did not
+        # just redirect to the agree page
+        self.assertEqual(response.request['PATH_INFO'], '/')
 
     def test_invalidate_cached_agreements(self):
         cache = caches[getattr(settings, 'TOS_CACHE_NAME', 'default')]
@@ -199,8 +191,18 @@ class BumpCoverage(TestCase):
 
         self.assertEqual(cache.get('django:tos:key_version'), key_version+1)
 
-    # Test that as of Django 4.0, get_response is required
-    @skipIf(DJANGO_VERSION < (4,0), 'Django 4.0+ only')
-    def test_creation_of_middleware(self):
-        with self.assertRaises(TypeError):
-            UserAgreementMiddleware()
+    def test_invalidate_cached_agreements_signal(self):
+        cache = caches[getattr(settings, 'TOS_CACHE_NAME', 'default')]
+
+        pre_save.connect(
+            invalidate_cached_agreements,
+            sender=TermsOfService,
+            dispatch_uid='invalidate_cached_agreements',
+        )
+
+        key_version = cache.get('django:tos:key_version')
+
+        self.tos2.active = True
+        self.tos2.save()
+
+        self.assertEqual(cache.get('django:tos:key_version'), key_version+1)
