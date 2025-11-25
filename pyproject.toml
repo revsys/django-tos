@@ -39,6 +39,7 @@ include-package-data = true
 find = {namespaces = false}
 
 [tool.coverage.run]
+branch = true
 omit = [
     "tos/tests/*",
     "tos_i18n/tests.py",
