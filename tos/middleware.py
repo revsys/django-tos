@@ -8,9 +8,10 @@ from django.urls import reverse_lazy
 from django.utils.cache import add_never_cache_headers
 
 from .models import UserAgreement
+from .utils import get_tos_cache
 
 
-cache = caches[getattr(settings, 'TOS_CACHE_NAME', 'default')]
+cache = get_tos_cache()
 tos_check_url = reverse_lazy('tos_check_tos')
 
 

@@ -16,9 +16,10 @@ from django.views.decorators.csrf import csrf_protect
 from django.views.generic import TemplateView
 
 from tos.models import has_user_agreed_latest_tos, TermsOfService, UserAgreement
+from .utils import get_tos_cache
 
 
-cache = caches[getattr(settings, 'TOS_CACHE_NAME', 'default')]
+cache = get_tos_cache()
 
 
 class TosView(TemplateView):
