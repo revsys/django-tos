@@ -40,6 +40,8 @@ find = {namespaces = false}
 
 [tool.coverage.run]
 omit = [
+    "tos/tests/*",
+    "tos_i18n/tests.py",
     "*tests*",
     "*migrations*",
     "*management*",
