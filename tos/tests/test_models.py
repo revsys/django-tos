@@ -49,10 +49,8 @@ class TestModels(TestCase):
         # latest is active though
         self.assertTrue(latest.active)
 
-    def test_terms_of_service_str(self):
-        self.assertEqual(str(self.tos1), f"{self.tos1.created}: active")
-
-        self.assertEqual(str(self.tos2), f"{self.tos2.created}: inactive")
+        self.assertEqual(str(first), f"{first.created}: inactive")
+        self.assertEqual(str(latest), f"{latest.created}: active")
 
     def test_validation_error_all_set_false(self):
         """
@@ -62,28 +60,10 @@ class TestModels(TestCase):
         self.tos1.active = False
         self.assertRaises(ValidationError, self.tos1.save)
 
-    def test_user_agreement_str(self):
-        ua1 = UserAgreement.objects.create(
-            terms_of_service=self.tos1,
-            user=self.user1,
-        )
-        ua2 = UserAgreement.objects.create(
-            terms_of_service=self.tos1,
-            user=self.user3,
-        )
-        ua3 = UserAgreement.objects.create(
-            terms_of_service=self.tos2,
-            user=self.user1,
-        )
-
-        self.assertEqual(str(ua1), f"{self.user1.username} agreed to TOS: {self.tos1.created}: active")
-        self.assertEqual(str(ua2), f"{self.user3.username} agreed to TOS: {self.tos1.created}: active")
-        self.assertEqual(str(ua3), f"{self.user1.username} agreed to TOS: {self.tos2.created}: inactive")
-
     def test_user_agreement(self):
 
         # simple agreement
-        UserAgreement.objects.create(
+        ua_u1_tos1 = UserAgreement.objects.create(
             terms_of_service=self.tos1,
             user=self.user1
         )
@@ -91,6 +71,8 @@ class TestModels(TestCase):
         self.assertTrue(has_user_agreed_latest_tos(self.user1))
         self.assertFalse(has_user_agreed_latest_tos(self.user2))
         self.assertFalse(has_user_agreed_latest_tos(self.user3))
+
+        self.assertEqual(str(ua_u1_tos1), f"{self.user1.username} agreed to TOS: {ua_u1_tos1.terms_of_service.created}: active")
 
         # Now set self.tos2.active to True and see what happens
         self.tos2.active = True
@@ -100,11 +82,11 @@ class TestModels(TestCase):
         self.assertFalse(has_user_agreed_latest_tos(self.user3))
 
         # add in a couple agreements and try again
-        UserAgreement.objects.create(
+        ua_u1_tos2 = UserAgreement.objects.create(
             terms_of_service=self.tos2,
             user=self.user1
         )
-        UserAgreement.objects.create(
+        ua_u3_tos2 = UserAgreement.objects.create(
             terms_of_service=self.tos2,
             user=self.user3
         )
@@ -112,6 +94,11 @@ class TestModels(TestCase):
         self.assertTrue(has_user_agreed_latest_tos(self.user1))
         self.assertFalse(has_user_agreed_latest_tos(self.user2))
         self.assertTrue(has_user_agreed_latest_tos(self.user3))
+
+        ua_u1_tos1.refresh_from_db()
+        self.assertEqual(str(ua_u1_tos1), f"{self.user1.username} agreed to TOS: {ua_u1_tos1.terms_of_service.created}: inactive")
+        self.assertEqual(str(ua_u1_tos2), f"{self.user1.username} agreed to TOS: {ua_u1_tos2.terms_of_service.created}: active")
+        self.assertEqual(str(ua_u3_tos2), f"{self.user3.username} agreed to TOS: {ua_u3_tos2.terms_of_service.created}: active")
 
 
 class TestManager(TestCase):

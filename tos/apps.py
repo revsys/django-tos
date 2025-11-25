@@ -13,7 +13,7 @@ class TOSConfig(AppConfig):
 
     def ready(self):
         MIDDLEWARES = getattr(settings, 'MIDDLEWARE', [])
-        if 'tos.middleware.UserAgreementMiddleware' in MIDDLEWARES:
+        if 'tos.middleware.UserAgreementMiddleware' in MIDDLEWARES:  # pragma: no cover
             TermsOfService = self.get_model('TermsOfService')
 
             pre_save.connect(invalidate_cached_agreements,

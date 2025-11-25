@@ -102,8 +102,15 @@ class TestViews(TestCase):
         response = self.client.get('/tos/')
         self.assertIn(b'first edition of the terms of service', response.content)
 
-    def test_reject_agreement(self):
+    def test_invalid_login_form(self):
+        self.assertFalse(has_user_agreed_latest_tos(self.user2))
 
+        response = self.client.post(self.login_url, {'username': 'user2'})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, "first edition of the terms of service")
+
+    def test_reject_agreement(self):
         self.assertFalse(has_user_agreed_latest_tos(self.user2))
 
         response = self.client.post(self.login_url, {'username': 'user2', 'password': 'user2pass'})
