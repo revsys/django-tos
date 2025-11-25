@@ -46,9 +46,8 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install Dependencies
       run: |
-        python -m pip install --upgrade pip
-        pip install coverage
-        pip install ${{ matrix.django-version }}
+        python -m pip install --upgrade --root-user-action=ignore pip
+        pip install --root-user-action=ignore 'coverage[toml]' ${{ matrix.django-version }}
     - name: Run Tests
       run: coverage run runtests.py
 

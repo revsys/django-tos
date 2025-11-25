@@ -49,10 +49,7 @@ class TermsOfService(BaseModel):
         verbose_name_plural = _('Terms of Service')
 
     def __str__(self):
-        active = 'inactive'
-        if self.active:
-            active = 'active'
-        return f'{self.created}: {active}'
+        return f'{self.created}: {"active" if self.active else "inactive"}'
 
     def save(self, *args, **kwargs):
         """ Ensure we're being saved properly """
