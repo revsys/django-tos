@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "django-tos"
-version = "1.1.0"
+version = "1.2.0"
 description = "django-tos is a reusable Django application for setting Terms of Service."
 authors = [
     { name = "Frank Wiles", email = "frank@revsys.com" },
@@ -50,7 +50,7 @@ test = ["coverage[toml]", "pytest", "pytest-cov", "pytest-django"]
 testing = ["django-tos[test]"]
 
 [tool.bumpver]
-current_version = "1.1.0"
+current_version = "1.2.0"
 version_pattern = "MAJOR.MINOR.PATCH"
 commit_message = "Bump version {old_version} -> {new_version}"
 commit = true
