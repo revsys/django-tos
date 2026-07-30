@@ -6,7 +6,6 @@ from django.test import TestCase
 from django.test.utils import modify_settings
 from django.urls import reverse
 
-from tos.middleware import UserAgreementMiddleware
 from tos.models import TermsOfService, UserAgreement
 from tos.signal_handlers import invalidate_cached_agreements
 from tos.utils import get_tos_cache
@@ -14,42 +13,32 @@ from tos.utils import get_tos_cache
 
 @modify_settings(
     MIDDLEWARE={
-        'append': 'tos.middleware.UserAgreementMiddleware',
+        "append": "tos.middleware.UserAgreementMiddleware",
     },
 )
 class TestMiddleware(TestCase):
-
     def setUp(self):
         # Clear cache between tests
         cache = get_tos_cache()
         cache.clear()
 
         # User that has agreed to TOS
-        self.user1 = get_user_model().objects.create_user('user1', 'user1@example.com', 'user1pass')
+        self.user1 = get_user_model().objects.create_user("user1", "user1@example.com", "user1pass")
 
         # User that has not yet agreed to TOS
-        self.user2 = get_user_model().objects.create_user('user2', 'user2@example.com', 'user2pass')
-        self.user3 = get_user_model().objects.create_user('user3', 'user3@example.com', 'user3pass')
+        self.user2 = get_user_model().objects.create_user("user2", "user2@example.com", "user2pass")
+        self.user3 = get_user_model().objects.create_user("user3", "user3@example.com", "user3pass")
 
-        self.tos1 = TermsOfService.objects.create(
-            content="first edition of the terms of service",
-            active=True
-        )
-        self.tos2 = TermsOfService.objects.create(
-            content="second edition of the terms of service",
-            active=False
-        )
-        self.login_url = getattr(settings, 'LOGIN_URL', '/login/')
+        self.tos1 = TermsOfService.objects.create(content="first edition of the terms of service", active=True)
+        self.tos2 = TermsOfService.objects.create(content="second edition of the terms of service", active=False)
+        self.login_url = getattr(settings, "LOGIN_URL", "/login/")
 
-        UserAgreement.objects.create(
-            terms_of_service=self.tos1,
-            user=self.user1
-        )
+        UserAgreement.objects.create(terms_of_service=self.tos1, user=self.user1)
 
-        self.redirect_page = '{}?{}={}'.format(
-            reverse('tos_check_tos'),
+        self.redirect_page = "{}?{}={}".format(
+            reverse("tos_check_tos"),
             REDIRECT_FIELD_NAME,
-            reverse('index'),
+            reverse("index"),
         )
 
     def test_middleware_redirects(self):
@@ -57,12 +46,12 @@ class TestMiddleware(TestCase):
         User that hasn't accepted TOS should be redirected to confirm. Also make sure
         confirm works.
         """
-        self.client.login(username='user2', password='user2pass')
-        response = self.client.get(reverse('index'))
+        self.client.login(username="user2", password="user2pass")
+        response = self.client.get(reverse("index"))
         self.assertRedirects(response, self.redirect_page)
 
         # Make sure confirm works after middleware redirect.
-        response = self.client.post(reverse('tos_check_tos'), {'accept': 'accept'})
+        response = self.client.post(reverse("tos_check_tos"), {"accept": "accept"})
 
         # Confirm redirects.
         self.assertEqual(response.status_code, 302)
@@ -73,96 +62,87 @@ class TestMiddleware(TestCase):
         """
         self.assertFalse(UserAgreement.objects.filter(terms_of_service=self.tos1, user=self.user2).exists())
 
-        self.client.login(username='user2', password='user2pass')
-        response = self.client.get(reverse('index'))
+        self.client.login(username="user2", password="user2pass")
+        response = self.client.get(reverse("index"))
         self.assertRedirects(response, self.redirect_page)
 
         # Make sure confirm works after middleware redirect.
-        response = self.client.post(reverse('tos_check_tos'), {'accept': 'accept'})
+        response = self.client.post(reverse("tos_check_tos"), {"accept": "accept"})
 
         self.assertTrue(UserAgreement.objects.filter(terms_of_service=self.tos1, user=self.user2).exists())
 
-        response = self.client.get(reverse('index'))
+        response = self.client.get(reverse("index"))
         self.assertEqual(response.status_code, 200)
 
-        self.assertIn('index', str(response.content))
+        self.assertIn("index", str(response.content))
 
     def test_middleware_doesnt_redirect(self):
         """User that has accepted TOS should get 200."""
-        self.client.login(username='user1', password='user1pass')
-        response = self.client.get(reverse('index'))
+        self.client.login(username="user1", password="user1pass")
+        response = self.client.get(reverse("index"))
         self.assertEqual(response.status_code, 200)
 
     def test_anonymous_user_200(self):
-        response = self.client.get(reverse('index'))
+        response = self.client.get(reverse("index"))
         self.assertEqual(response.status_code, 200)
 
     def test_accept_after_middleware_redirects_properly(self):
-        self.client.login(username='user3', password='user3pass')
+        self.client.login(username="user3", password="user3pass")
 
-        response = self.client.get(reverse('index'), follow=True)
+        response = self.client.get(reverse("index"), follow=True)
 
         self.assertRedirects(response, self.redirect_page)
 
         # Agree
-        response = self.client.post(self.redirect_page, {'accept': 'accept'})
+        response = self.client.post(self.redirect_page, {"accept": "accept"})
 
         # Confirm redirects back to the index page
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url.replace('http://testserver', ''), str(reverse('index')))
+        self.assertEqual(response.url.replace("http://testserver", ""), str(reverse("index")))
 
 
 @modify_settings(
     MIDDLEWARE={
-        'append': 'tos.middleware.UserAgreementMiddleware',
+        "append": "tos.middleware.UserAgreementMiddleware",
     },
 )
 class BumpCoverage(TestCase):
     def setUp(self):
         # User that has agreed to TOS
-        self.user1 = get_user_model().objects.create_user('user1', 'user1@example.com', 'user1pass')
+        self.user1 = get_user_model().objects.create_user("user1", "user1@example.com", "user1pass")
         # User that has not aggreed to TOS
-        self.user2 = get_user_model().objects.create_user('user2', 'user2@example.com', 'user2pass')
+        self.user2 = get_user_model().objects.create_user("user2", "user2@example.com", "user2pass")
 
-        self.tos1 = TermsOfService.objects.create(
-            content="first edition of the terms of service",
-            active=True
-        )
-        self.tos2 = TermsOfService.objects.create(
-            content="second edition of the terms of service",
-            active=False
-        )
-        self.login_url = getattr(settings, 'LOGIN_URL', '/login/')
+        self.tos1 = TermsOfService.objects.create(content="first edition of the terms of service", active=True)
+        self.tos2 = TermsOfService.objects.create(content="second edition of the terms of service", active=False)
+        self.login_url = getattr(settings, "LOGIN_URL", "/login/")
 
-        UserAgreement.objects.create(
-            terms_of_service=self.tos1,
-            user=self.user1
-        )
+        UserAgreement.objects.create(terms_of_service=self.tos1, user=self.user1)
 
     def test_ajax_request(self):
         self.client.force_login(self.user2)
-        response = self.client.get('/', headers={'X-Requested-With': "XMLHttpRequest"})
+        response = self.client.get("/", headers={"X-Requested-With": "XMLHttpRequest"})
 
         self.assertEqual(response.status_code, 200)
 
     def test_skip_for_user(self):
         cache = get_tos_cache()
 
-        key_version = cache.get('django:tos:key_version')
+        key_version = cache.get("django:tos:key_version")
 
-        cache.set(f'django:tos:skip_tos_check:{self.user1.id}', True, version=key_version)
+        cache.set(f"django:tos:skip_tos_check:{self.user1.id}", True, version=key_version)
 
-        self.client.login(username='user1', password='user1pass')
-        response = self.client.get(reverse('index'))
+        self.client.login(username="user1", password="user1pass")
+        response = self.client.get(reverse("index"))
 
         self.assertEqual(response.status_code, 200)
 
     def test_use_cache(self):
-        cache = caches[getattr(settings, 'TOS_CACHE_NAME', 'default')]
+        cache = caches[getattr(settings, "TOS_CACHE_NAME", "default")]
 
-        key_version = cache.get('django:tos:key_version')
+        key_version = cache.get("django:tos:key_version")
 
-        cache.set(f'django:tos:agreed:{self.user2.id}', True, version=key_version)
+        cache.set(f"django:tos:agreed:{self.user2.id}", True, version=key_version)
 
         self.client.force_login(self.user2)
 
@@ -170,40 +150,40 @@ class BumpCoverage(TestCase):
         # database, that way we can be sure it is using the cached value
         self.assertFalse(UserAgreement.objects.filter(user=self.user2).exists())
 
-        response = self.client.get(reverse('index'))
+        response = self.client.get(reverse("index"))
 
         self.assertEqual(response.status_code, 200)
         # Double check that it did actually load the index page, and did not
         # just redirect to the agree page
-        self.assertEqual(response.request['PATH_INFO'], '/')
+        self.assertEqual(response.request["PATH_INFO"], "/")
 
     def test_invalidate_cached_agreements(self):
         cache = get_tos_cache()
 
         invalidate_cached_agreements(TermsOfService)
 
-        key_version = cache.get('django:tos:key_version')
+        key_version = cache.get("django:tos:key_version")
 
         invalidate_cached_agreements(TermsOfService)
 
-        self.assertEqual(cache.get('django:tos:key_version'), key_version+1)
+        self.assertEqual(cache.get("django:tos:key_version"), key_version + 1)
 
         invalidate_cached_agreements(TermsOfService, raw=True)
 
-        self.assertEqual(cache.get('django:tos:key_version'), key_version+1)
+        self.assertEqual(cache.get("django:tos:key_version"), key_version + 1)
 
     def test_invalidate_cached_agreements_signal(self):
-        cache = caches[getattr(settings, 'TOS_CACHE_NAME', 'default')]
+        cache = caches[getattr(settings, "TOS_CACHE_NAME", "default")]
 
         pre_save.connect(
             invalidate_cached_agreements,
             sender=TermsOfService,
-            dispatch_uid='invalidate_cached_agreements',
+            dispatch_uid="invalidate_cached_agreements",
         )
 
-        key_version = cache.get('django:tos:key_version')
+        key_version = cache.get("django:tos:key_version")
 
         self.tos2.active = True
         self.tos2.save()
 
-        self.assertEqual(cache.get('django:tos:key_version'), key_version+1)
+        self.assertEqual(cache.get("django:tos:key_version"), key_version + 1)

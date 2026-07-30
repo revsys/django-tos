@@ -1,80 +1,121 @@
 [build-system]
-requires = ["setuptools>=61.2"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
 name = "django-tos"
-license = "BSD-3-Clause"
 version = "1.1.0"
-# Don't forget to update .github/workflows/django.yml when you update the
-# minimum version of Python
-requires-python = ">=3.9"
-authors = [{name = "Frank Wiles", email = "frank@revsys.com"}]
 description = "django-tos is a reusable Django application for setting Terms of Service."
-readme = "README.rst"
+authors = [{ name = "Frank Wiles", email = "frank@revsys.com" }]
+license = "BSD-3-Clause"
 classifiers = [
     "Development Status :: 4 - Beta",
     "Environment :: Web Environment",
-    "Intended Audience :: Developers",
-    "Operating System :: OS Independent",
-    "Programming Language :: Python",
     "Framework :: Django",
+    "Framework :: Django :: 4.2",
+    "Framework :: Django :: 5.0",
+    "Framework :: Django :: 5.1",
+    "Framework :: Django :: 5.2",
+    "Framework :: Django :: 6.0",
+    "Framework :: Django :: 6.1",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: Free Threading :: 3 - Stable",
 ]
 dependencies = [
-    "django>=4.2.26",
+    "Django>=4.2",
 ]
+requires-python = ">=3.10"
 
-[dependency-groups]
-dev = [
-    "coverage[toml]>=5.2.1",
-]
+[project.readme]
+file = "README.rst"
+content-type = "text/x-rst"
 
 [project.urls]
-Homepage = "http://github.com/revsys/django-tos/"
+Homepage = "https://github.com/revsys/django-tos/"
 
-[tool.setuptools]
-include-package-data = true
+[project.optional-dependencies]
+lint = ["prek"]
+test = ["coverage[toml]", "pytest", "pytest-cov", "pytest-django"]
+testing = ["django-tos[test]"]
 
-[tool.setuptools.packages]
-find = {namespaces = false}
+[tool.bumpver]
+current_version = "1.1.0"
+version_pattern = "MAJOR.MINOR.PATCH"
+commit_message = "Bump version {old_version} -> {new_version}"
+commit = true
+tag = true
+push = false
+
+[tool.bumpver.file_patterns]
+"pyproject.toml" = ['current_version = "{version}"', 'version = "{version}"']
+
+[tool.coverage.paths]
+source = ["tos", "tos_i18n"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self\\.debug",
+    "if settings.DEBUG",
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+    "raise AssertionError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+]
 
 [tool.coverage.run]
 branch = true
 omit = [
     "tos/tests/*",
     "tos_i18n/tests.py",
-    "*tests*",
     "*migrations*",
-    "*management*",
-    "*urls*",
-    "*site-packages*",
-    "*src*",
-    "*manage*",
-    "*settings*",
-    ".*venv*/",
-    "*venv*/",
+]
+source = ["tos", "tos_i18n"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["tos", "tos_i18n"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/tos",
+    "/tos_i18n",
+    "/README.rst",
+    "/AUTHORS.txt",
+    "/LICENSE.txt",
+]
+exclude = [
+    "tos/tests",
+    "tos_i18n/tests.py",
 ]
 
-[tool.coverage.report]
-# Regexes for lines to exclude from consideration
-exclude_lines = [
-    # Have to re-enable the standard pragma
-    "pragma: no cover",
+[tool.isort]
+profile = "black"
+honor_noqa = true
 
-    # Don't complain about missing debug-only code:
-    "def __repr__",
-    "if self\\.debug",
-    "def __unicode__",
-    "def __repr__",
-    "if settings.DEBUG",
-    "raise NotImplementedError",
-    "from django\\.",
+[tool.ruff]
+line-length = 120
 
-    # Don't complain if tests don't hit defensive assertion code:
-    "raise AssertionError",
-    "raise NotImplementedError",
+[tool.ruff.lint.per-file-ignores]
+# Django declares these as plain class attributes by convention; ClassVar
+# annotations would be wrong here (migrations are generated code).
+"**/migrations/*.py" = ["RUF012"]
+"**/forms.py" = ["RUF012"]
+"**/models.py" = ["RUF012"]
 
-    # Don't complain if non-runnable code isn't run:
-    "if 0:",
-    "if __name__ == .__main__.:",
-]
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "test_settings"
+addopts = "--reuse-db"
+pythonpath = ["."]
+norecursedirs = ".* build dist docs .eggs/* *.egg-info htmlcov .git .tox"
+python_files = "test_*.py *_tests.py tests.py"
+testpaths = ["tos"]

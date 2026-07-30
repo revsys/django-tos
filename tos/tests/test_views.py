@@ -7,105 +7,98 @@ from tos.models import TermsOfService, UserAgreement, has_user_agreed_latest_tos
 
 
 class TestViews(TestCase):
-
     def setUp(self):
         # User that has agreed to TOS
-        self.user1 = get_user_model().objects.create_user('user1', 'user1@example.com', 'user1pass')
+        self.user1 = get_user_model().objects.create_user("user1", "user1@example.com", "user1pass")
 
         # User that has not yet agreed to TOS
-        self.user2 = get_user_model().objects.create_user('user2', 'user2@example.com', 'user2pass')
+        self.user2 = get_user_model().objects.create_user("user2", "user2@example.com", "user2pass")
 
-        self.tos1 = TermsOfService.objects.create(
-            content="first edition of the terms of service",
-            active=True
-        )
-        self.tos2 = TermsOfService.objects.create(
-            content="second edition of the terms of service",
-            active=False
-        )
+        self.tos1 = TermsOfService.objects.create(content="first edition of the terms of service", active=True)
+        self.tos2 = TermsOfService.objects.create(content="second edition of the terms of service", active=False)
 
-        self.login_url = getattr(settings, 'LOGIN_URL', '/login/')
+        self.login_url = getattr(settings, "LOGIN_URL", "/login/")
 
-        UserAgreement.objects.create(
-            terms_of_service=self.tos1,
-            user=self.user1
-        )
+        UserAgreement.objects.create(terms_of_service=self.tos1, user=self.user1)
 
     def test_login(self):
-        """ Make sure we didn't break the authentication system
-            This assumes that login urls are named 'login'
+        """Make sure we didn't break the authentication system
+        This assumes that login urls are named 'login'
         """
 
         self.assertTrue(has_user_agreed_latest_tos(self.user1))
-        login = self.client.login(username='user1', password='user1pass')
-        self.assertTrue(login, 'Could not log in')
+        login = self.client.login(username="user1", password="user1pass")
+        self.assertTrue(login, "Could not log in")
         self.assertTrue(has_user_agreed_latest_tos(self.user1))
 
     def test_user_agrees_multiple_times(self):
-        login_response = self.client.post(reverse('login'), {
-            'username': 'user2',
-            'password': 'user2pass',
-        })
+        login_response = self.client.post(
+            reverse("login"),
+            {
+                "username": "user2",
+                "password": "user2pass",
+            },
+        )
 
         self.assertTrue(login_response)
 
-        response = self.client.post(reverse('tos_check_tos'), {'accept': 'accept'})
+        response = self.client.post(reverse("tos_check_tos"), {"accept": "accept"})
 
         self.assertEqual(response.status_code, 302)
         self.assertEqual(UserAgreement.objects.filter(user=self.user2).count(), 1)
 
-        response = self.client.post(reverse('tos_check_tos'), {'accept': 'accept'})
+        response = self.client.post(reverse("tos_check_tos"), {"accept": "accept"})
 
         self.assertEqual(response.status_code, 302)
         self.assertEqual(UserAgreement.objects.filter(user=self.user2).count(), 1)
 
-        response = self.client.post(reverse('tos_check_tos'), {'accept': 'accept'})
+        response = self.client.post(reverse("tos_check_tos"), {"accept": "accept"})
 
         self.assertEqual(response.status_code, 302)
         self.assertEqual(UserAgreement.objects.filter(user=self.user2).count(), 1)
 
     def test_need_agreement(self):
-        """ user2 tries to login and then has to go and agree to terms"""
+        """user2 tries to login and then has to go and agree to terms"""
 
         self.assertFalse(has_user_agreed_latest_tos(self.user2))
 
-        response = self.client.post(self.login_url, {'username': 'user2', 'password': 'user2pass'})
+        response = self.client.post(self.login_url, {"username": "user2", "password": "user2pass"})
         self.assertContains(response, "first edition of the terms of service")
 
         self.assertFalse(has_user_agreed_latest_tos(self.user2))
 
     def test_do_not_need_agreement(self):
-        """ user2 tries to login and has already agreed"""
+        """user2 tries to login and has already agreed"""
 
         self.assertTrue(has_user_agreed_latest_tos(self.user1))
 
-        response = self.client.post(self.login_url, {'username': 'user1',
-                                                         'password': 'user1pass'})
+        response = self.client.post(self.login_url, {"username": "user1", "password": "user1pass"})
         self.assertEqual(302, response.status_code)
 
     def test_redirect_security(self):
-        """ redirect to outside url not allowed, should redirect to login url"""
+        """redirect to outside url not allowed, should redirect to login url"""
 
-        response = self.client.post(self.login_url, {'username': 'user1',
-                                                         'password': 'user1pass', 'next': 'http://example.com'})
+        response = self.client.post(
+            self.login_url, {"username": "user1", "password": "user1pass", "next": "http://example.com"}
+        )
         self.assertEqual(302, response.status_code)
         self.assertIn(settings.LOGIN_REDIRECT_URL, response.url)
 
     def test_need_to_log_in(self):
-        """ GET to login url shows login template."""
+        """GET to login url shows login template."""
 
         response = self.client.get(self.login_url)
         self.assertContains(response, "Dummy login template.")
 
     def test_root_tos_view(self):
 
-        response = self.client.get('/tos/')
-        self.assertIn(b'first edition of the terms of service', response.content)
+        response = self.client.get("/tos/")
+        self.assertIn(b"first edition of the terms of service", response.content)
 
     def test_invalid_login_form(self):
         self.assertFalse(has_user_agreed_latest_tos(self.user2))
 
-        response = self.client.post(self.login_url, {'username': 'user2'})
+        response = self.client.post(self.login_url, {"username": "user2"})
 
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, "first edition of the terms of service")
@@ -113,10 +106,10 @@ class TestViews(TestCase):
     def test_reject_agreement(self):
         self.assertFalse(has_user_agreed_latest_tos(self.user2))
 
-        response = self.client.post(self.login_url, {'username': 'user2', 'password': 'user2pass'})
+        response = self.client.post(self.login_url, {"username": "user2", "password": "user2pass"})
         self.assertContains(response, "first edition of the terms of service")
-        url = reverse('tos_check_tos')
-        response = self.client.post(url, {'accept': 'reject'})
+        url = reverse("tos_check_tos")
+        response = self.client.post(url, {"accept": "reject"})
 
         self.assertFalse(has_user_agreed_latest_tos(self.user2))
 
@@ -124,11 +117,11 @@ class TestViews(TestCase):
 
         self.assertFalse(has_user_agreed_latest_tos(self.user2))
 
-        response = self.client.post(self.login_url, {'username': 'user2', 'password': 'user2pass'})
+        response = self.client.post(self.login_url, {"username": "user2", "password": "user2pass"})
         self.assertContains(response, "first edition of the terms of service")
         self.assertFalse(has_user_agreed_latest_tos(self.user2))
-        url = reverse('tos_check_tos')
-        response = self.client.post(url, {'accept': 'accept'})
+        url = reverse("tos_check_tos")
+        response = self.client.post(url, {"accept": "accept"})
 
         self.assertTrue(has_user_agreed_latest_tos(self.user2))
 
@@ -142,10 +135,10 @@ class TestViews(TestCase):
         self.assertFalse(has_user_agreed_latest_tos(self.user1))
 
         # user1 agrees again
-        response = self.client.post(self.login_url, {'username': 'user1', 'password': 'user1pass'})
+        response = self.client.post(self.login_url, {"username": "user1", "password": "user1pass"})
         self.assertContains(response, "second edition of the terms of service")
         self.assertFalse(has_user_agreed_latest_tos(self.user2))
-        url = reverse('tos_check_tos')
-        response = self.client.post(url, {'accept': 'accept'})
+        url = reverse("tos_check_tos")
+        response = self.client.post(url, {"accept": "accept"})
 
         self.assertTrue(has_user_agreed_latest_tos(self.user1))
