@@ -26,58 +26,47 @@ class TermsOfServiceManager(models.Manager):
             if settings.DEBUG:
                 warnings.warn("There is no active Terms-of-Service")
             else:
-                raise NoActiveTermsOfService(
-                    'Please create an active Terms-of-Service'
-                )
+                raise NoActiveTermsOfService("Please create an active Terms-of-Service")
 
 
 class TermsOfService(BaseModel):
     active = models.BooleanField(
-                default=False,
-                verbose_name=_('active'),
-                help_text=_(
-                    'Only one terms of service is allowed to be active'
-                )
+        default=False, verbose_name=_("active"), help_text=_("Only one terms of service is allowed to be active")
     )
-    content = models.TextField(verbose_name=_('content'), blank=True)
+    content = models.TextField(verbose_name=_("content"), blank=True)
     objects = TermsOfServiceManager()
 
     class Meta:
-        get_latest_by = 'created'
-        ordering = ('-created',)
-        verbose_name = _('Terms of Service')
-        verbose_name_plural = _('Terms of Service')
+        get_latest_by = "created"
+        ordering = ("-created",)
+        verbose_name = _("Terms of Service")
+        verbose_name_plural = _("Terms of Service")
 
     def __str__(self):
-        return f'{self.created}: {"active" if self.active else "inactive"}'
+        return f"{self.created}: {'active' if self.active else 'inactive'}"
 
     def save(self, *args, **kwargs):
-        """ Ensure we're being saved properly """
+        """Ensure we're being saved properly"""
 
         if self.active:
             TermsOfService.objects.exclude(id=self.id).update(active=False)
 
         else:
-            if not TermsOfService.objects\
-                    .exclude(id=self.id)\
-                    .filter(active=True)\
-                    .exists():
+            if not TermsOfService.objects.exclude(id=self.id).filter(active=True).exists():
                 if settings.DEBUG:
                     warnings.warn("There is no active Terms-of-Service")
                 else:
-                    raise NoActiveTermsOfService(
-                        'One of the terms of service must be marked active'
-                    )
+                    raise NoActiveTermsOfService("One of the terms of service must be marked active")
 
         super().save(*args, **kwargs)
 
 
 class UserAgreement(BaseModel):
-    terms_of_service = models.ForeignKey(TermsOfService, related_name='terms', on_delete=models.CASCADE)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='user_agreement', on_delete=models.CASCADE)
+    terms_of_service = models.ForeignKey(TermsOfService, related_name="terms", on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="user_agreement", on_delete=models.CASCADE)
 
     def __str__(self):
-        return f'{self.user.username} agreed to TOS: {self.terms_of_service}'
+        return f"{self.user.username} agreed to TOS: {self.terms_of_service}"
 
 
 def has_user_agreed_latest_tos(user):

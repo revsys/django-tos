@@ -1,9 +1,12 @@
-from modeltranslation.translator import translator, TranslationOptions
+from modeltranslation.translator import TranslationOptions, translator
+
 from tos.models import TermsOfService
 
 # Translations for django-tos
 
+
 class TermsOfServiceTranslationOptions(TranslationOptions):
-    fields = ('content', )
+    fields = ("content",)
+
 
 translator.register(TermsOfService, TermsOfServiceTranslationOptions)
