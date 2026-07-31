@@ -149,10 +149,7 @@ INSTALLED_APPS = (
    from django.apps import AppConfig, apps
    from django.conf import settings
    from django.contrib.auth import get_user_model
-   from django.core.cache import caches
-   from django.db.models import Q
-   from django.db.models.signals import post_save, pre_save
-   from django.dispatch import receiver
+   from django.db.models.signals import post_save
 
    class MyAppConfig(AppConfig):
        name = 'myapp'
@@ -181,8 +178,7 @@ add following apps to `INSTALLED_APPS`:
 INSTALLED_APPS += ('modeltranslation', 'tos_i18n')
 ```
 
-and also you should also define your languages in Django `LANGUAGES` variable,
-e.g.:
+You should also define your languages in Django's `LANGUAGES` setting, e.g.:
 
 ```python
 LANGUAGES = (
@@ -191,16 +187,16 @@ LANGUAGES = (
 )
 ```
 
-Please note that adding those to `INSTALLED_APPS` **changes** Django models.
-Concretely it adds for every registered `field` that should translated,
-additional fields with name `field_<lang_code>`, e.g. for given model:
+Please note that adding those to `INSTALLED_APPS` **changes** Django models: for
+every registered field that should be translated, it adds fields named
+`field_<lang_code>`. For example, given this model:
 
 ```python
 class MyModel(models.Model):
     name = models.CharField(max_length=10)
 ```
 
-There will be generated fields: `name`, `name_en`, `name_pl`.
+the following fields are generated: `name`, `name_en`, `name_pl`.
 
 That's it. You are now running tos in i18n mode with the languages you declared
 in `LANGUAGES` setting. This will also make all required adjustments in the
