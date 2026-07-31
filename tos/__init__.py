@@ -1,1 +1,4 @@
-VERSION = (1, 1, 0)
+__version__ = "1.2.0"
+
+# Kept for backwards compatibility with anything importing the tuple form.
+VERSION = tuple(int(part) for part in __version__.split("."))
