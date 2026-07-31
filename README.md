@@ -1,5 +1,10 @@
 # django-tos
 
+[![CI](https://github.com/revsys/django-tos/actions/workflows/actions.yml/badge.svg)](https://github.com/revsys/django-tos/actions/workflows/actions.yml)
+[![PyPI](https://img.shields.io/pypi/v/django-tos.svg)](https://pypi.org/project/django-tos/)
+[![Python versions](https://img.shields.io/pypi/pyversions/django-tos.svg)](https://pypi.org/project/django-tos/)
+[![Django versions](https://img.shields.io/pypi/frameworkversions/django/django-tos.svg)](https://pypi.org/project/django-tos/)
+
 This project gives the admin the ability to reset terms of agreement with the end users. It tracks when TOS are changed and when users agree to the new TOS.
 
 ## Summary
