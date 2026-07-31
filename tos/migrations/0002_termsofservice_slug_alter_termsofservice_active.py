@@ -4,20 +4,27 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('tos', '0001_initial'),
+        ("tos", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='termsofservice',
-            name='slug',
-            field=models.SlugField(default='default', help_text="Experimental: identifies the kind of agreement (e.g. 'default', 'privacy'). One active Terms of Service is allowed per slug, so a site can require agreement to several documents. Existing installs keep a single 'default' document and are unaffected.", verbose_name='slug'),
+            model_name="termsofservice",
+            name="slug",
+            field=models.SlugField(
+                default="default",
+                help_text="Experimental: identifies the kind of agreement (e.g. 'default', 'privacy'). One active Terms of Service is allowed per slug, so a site can require agreement to several documents. Existing installs keep a single 'default' document and are unaffected.",
+                verbose_name="slug",
+            ),
         ),
         migrations.AlterField(
-            model_name='termsofservice',
-            name='active',
-            field=models.BooleanField(default=False, help_text='Only one terms of service is allowed to be active per slug', verbose_name='active'),
+            model_name="termsofservice",
+            name="active",
+            field=models.BooleanField(
+                default=False,
+                help_text="Only one terms of service is allowed to be active per slug",
+                verbose_name="active",
+            ),
         ),
     ]
