@@ -11,6 +11,15 @@ Summary
 - Users need to be informed and agree/re-agree when they login (custom login is provided)
 - Just two models (TOS and user agreement)
 
+Requirements
+============
+
+Supports Django 4.2, 5.0, 5.1, 5.2, 6.0, and 6.1 on Python 3.10 through 3.14
+(including free-threaded 3.14).
+
+``django-tos`` also relies on ``AUTH_USER_MODEL`` (the ``UserAgreement`` foreign
+key) and ``LOGIN_REDIRECT_URL`` (the post-agreement redirect fallback).
+
 Terms Of Service Installation
 =============================
 
@@ -19,6 +28,19 @@ Terms Of Service Installation
 2. Add ``tos`` to your ``INSTALLED_APPS`` setting.
 
 3. Sync your database with ``python manage.py migrate``
+
+Creating a Terms of Service
+===========================
+
+``django-tos`` needs an **active** ``TermsOfService`` to check users against.
+Create one in the Django admin (or via a data migration / fixture) and mark it
+active. Saving a new active ``TermsOfService`` automatically deactivates the
+previous one.
+
+If no active terms exist, ``django-tos`` warns when ``DEBUG`` is ``True`` and
+raises ``tos.models.NoActiveTermsOfService`` when ``DEBUG`` is ``False``. A
+fresh database in development therefore will not crash, while a misconfigured
+production deploy fails loudly rather than silently skipping the check.
 
 Configuration
 =============
@@ -37,13 +59,15 @@ In your root urlconf file ``urls.py`` add:
 
 .. code-block:: python
 
+    from django.urls import include, path, re_path
+
     from tos.views import login
 
     # terms of service links
-    urlpatterns += patterns('',
-        url(r'^login/$', login, {}, 'auth_login',),
-        url(r'^terms-of-service/', include('tos.urls')),
-    )
+    urlpatterns += [
+        re_path(r'^login/$', login, name='auth_login'),
+        path('terms-of-service/', include('tos.urls')),
+    ]
 
 Option 2: Middleware Check
 ``````````````````````````
@@ -120,7 +144,7 @@ Option 2 Configuration
 
    this setting defaults to the ``default`` cache.
 
-4. Then in your project's ``settings.py`` add the middleware to ``MIDDLEWARE_CLASSES``:
+3. Then in your project's ``settings.py`` add the middleware to ``MIDDLEWARE``:
 
    .. code-block:: python
 
@@ -130,7 +154,7 @@ Option 2 Configuration
            'tos.middleware.UserAgreementMiddleware',
        )
 
-5. Optional: To allow users to skip the TOS check, you will need to set corresponding cache keys for them in the TOS cache. The cache key for each user will need to be prefixed with ``django:tos:skip_tos_check:``, and have the user ID appended to it.
+4. Optional: To allow users to skip the TOS check, you will need to set corresponding cache keys for them in the TOS cache. The cache key for each user will need to be prefixed with ``django:tos:skip_tos_check:``, and have the user ID appended to it.
 
    Here is an example app configuration that allows staff users and superusers to skip the TOS agreement check:
 
