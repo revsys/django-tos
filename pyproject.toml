@@ -38,8 +38,8 @@ dependencies = [
 requires-python = ">=3.10"
 
 [project.readme]
-file = "README.rst"
-content-type = "text/x-rst"
+file = "README.md"
+content-type = "text/markdown"
 
 [project.urls]
 Homepage = "https://github.com/revsys/django-tos/"
@@ -92,7 +92,7 @@ packages = ["tos", "tos_i18n"]
 include = [
     "/tos",
     "/tos_i18n",
-    "/README.rst",
+    "/README.md",
     "/AUTHORS.txt",
     "/LICENSE.txt",
 ]
