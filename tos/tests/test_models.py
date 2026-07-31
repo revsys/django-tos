@@ -135,3 +135,43 @@ class TestNoActiveTOS(TestCase):
     def test_get_current_tos_raises_exception(self):
         with self.assertRaises(NoActiveTermsOfService):
             TermsOfService.objects.get_current_tos()
+
+
+class TestMultipleDocuments(TestCase):
+    """Experimental: several active Terms of Service, one per slug (#54)."""
+
+    def setUp(self):
+        self.user = get_user_model().objects.create_user("user", "user@example.com", "pass")
+        self.tos = TermsOfService.objects.create(content="terms", active=True)  # slug defaults to "default"
+        self.privacy = TermsOfService.objects.create(content="privacy policy", active=True, slug="privacy")
+
+    def test_active_is_per_slug(self):
+        # Activating a second slug does not deactivate the default document.
+        self.tos.refresh_from_db()
+        self.privacy.refresh_from_db()
+        self.assertTrue(self.tos.active)
+        self.assertTrue(self.privacy.active)
+
+    def test_get_current_tos_by_slug(self):
+        self.assertEqual(TermsOfService.objects.get_current_tos(), self.tos)
+        self.assertEqual(TermsOfService.objects.get_current_tos(slug="privacy"), self.privacy)
+
+    def test_get_active_returns_every_slug(self):
+        self.assertEqual(set(TermsOfService.objects.get_active()), {self.tos, self.privacy})
+
+    def test_new_version_deactivates_only_its_slug(self):
+        privacy_v2 = TermsOfService.objects.create(content="privacy v2", active=True, slug="privacy")
+        self.privacy.refresh_from_db()
+        self.tos.refresh_from_db()
+        self.assertFalse(self.privacy.active)  # previous privacy document deactivated
+        self.assertTrue(privacy_v2.active)
+        self.assertTrue(self.tos.active)  # the default document is untouched
+
+    def test_must_agree_to_all_active_documents(self):
+        # Agreeing to only the default document is not enough.
+        UserAgreement.objects.create(terms_of_service=self.tos, user=self.user)
+        self.assertFalse(has_user_agreed_latest_tos(self.user))
+
+        # Agreeing to the privacy policy as well satisfies the check.
+        UserAgreement.objects.create(terms_of_service=self.privacy, user=self.user)
+        self.assertTrue(has_user_agreed_latest_tos(self.user))

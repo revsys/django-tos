@@ -4,6 +4,10 @@
 
 - Fix version drift: `tos/__init__.py` is synced to the packaged version and is
   tracked by bumpver going forward (#103)
+- **Experimental:** support multiple agreement documents. `TermsOfService` gains
+  a `slug` (default `"default"`) and one document is active per slug, so a site
+  can require agreement to several documents (e.g. terms *and* a privacy policy).
+  Existing single-document installs are unaffected (#54)
 
 ## Version 1.2.0
 
