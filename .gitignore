@@ -12,3 +12,6 @@ dist/
 .nox/
 .pytest_cache/
 .ruff_cache/
+
+# uv
+uv.lock
