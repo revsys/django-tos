@@ -15,8 +15,9 @@ This project gives the admin the ability to reset terms of agreement with the en
 
 ## Requirements
 
-Supports Django 4.2, 5.0, 5.1, 5.2, 6.0, and 6.1 on Python 3.10 through 3.14
-(including free-threaded 3.14).
+Supports Django 4.2, 5.0, 5.1, 5.2, 6.0, and 6.1 on Python 3.10 through 3.15
+(including free-threaded 3.14 and 3.15). Python 3.15 is still in beta, so it is
+tested but not yet promised.
 
 `django-tos` also relies on `AUTH_USER_MODEL` (the `UserAgreement` foreign key)
 and `LOGIN_REDIRECT_URL` (the post-agreement redirect fallback).
