@@ -1,0 +1,67 @@
+name: Create release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+env:
+  PYTHON_VERSION: "3.13"
+
+jobs:
+  release:
+    name: Create release
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up Python ${{ env.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Add version to environment vars
+        run: |
+          PROJECT_VERSION=$(python3 -c 'import importlib.metadata; print(importlib.metadata.version("django-tos"))')
+          echo "PROJECT_VERSION=$PROJECT_VERSION" >> $GITHUB_ENV
+      - name: Check if tag version matches project version
+        run: |
+          TAG=$(git describe HEAD --tags --abbrev=0)
+          echo "TAG: $TAG"
+          echo "PROJECT_VERSION: $PROJECT_VERSION"
+          if [[ "$TAG" != "v$PROJECT_VERSION" ]]; then exit 1; fi
+      - name: Install packages
+        run: |
+          python3 -m pip install --root-user-action=ignore build 'validate-pyproject[all]'
+      - name: Check pyproject.toml validity
+        # https://github.com/astral-sh/uv/issues/9653#issuecomment-3591888192
+        run: validate-pyproject ./pyproject.toml
+      - name: Build
+        run: |
+          python3 -m build
+          echo "PROJECT_VERSION: $PROJECT_VERSION"
+      - name: Release Notes
+        run: |
+          if (git describe HEAD~ --tags --abbrev=0); then
+            git log $(git describe HEAD~ --tags --abbrev=0)..HEAD --pretty='format:* %h %s (@%an)' --no-merges >> ".github/RELEASE-TEMPLATE.md"
+          else
+            touch .github/RELEASE-TEMPLATE.md
+          fi
+      - name: Create Release Draft
+        uses: softprops/action-gh-release@v1
+        with:
+          body_path: ".github/RELEASE-TEMPLATE.md"
+          draft: true
+          fail_on_unmatched_files: true
+          files: |
+            dist/django_tos-${{ env.PROJECT_VERSION }}-py3-none-any.whl
+            dist/django_tos-${{ env.PROJECT_VERSION }}.tar.gz
+      # Save build artifacts so the publish workflow doesn't need to rebuild them
+      - name: Save distribution files
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            dist/django_tos-${{ env.PROJECT_VERSION }}-py3-none-any.whl
+            dist/django_tos-${{ env.PROJECT_VERSION }}.tar.gz
+          key: build-distributions-${{ env.PROJECT_VERSION }}

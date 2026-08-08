@@ -1,0 +1,43 @@
+name: PyPI Publish
+
+on:
+  release:
+    types:
+      - published
+
+env:
+  PYTHON_VERSION: "3.12"
+  UV_SYSTEM_PYTHON: 1
+
+jobs:
+  publish:
+    name: Upload release to PyPI
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi-release
+      url: https://pypi.org/p/django-tos
+    permissions:
+      id-token: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Add version to environment vars
+        run: |
+          PROJECT_VERSION=$(python3 -c 'import importlib.metadata; print(importlib.metadata.version("django-tos"))')
+          echo "PROJECT_VERSION=$PROJECT_VERSION" >> $GITHUB_ENV
+      - name: Restore distribution files cache
+        id: cache-restore
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            dist/django_tos-${{ env.PROJECT_VERSION }}-py3-none-any.whl
+            dist/django_tos-${{ env.PROJECT_VERSION }}.tar.gz
+          key: build-distributions-${{ env.PROJECT_VERSION }}
+      - name: List distribution files
+        run: |
+          ls -l dist/*.whl dist/*.tar.gz
+      - name: Publish package to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          print-hash: true
+          verbose: true
