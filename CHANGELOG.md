@@ -4,6 +4,8 @@
 
 - Officially support Python 3.15, including the free-threaded build (3.15t),
   now that 3.15.0 final has been released.
+- Drop support for Python 3.10, which has reached end of life. Python 3.11 is
+  now the minimum supported version.
 
 ## Version 1.2.1
 
