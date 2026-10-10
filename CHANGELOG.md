@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Officially support Python 3.15, including the free-threaded build (3.15t),
+  now that 3.15.0 final has been released.
+
 ## Version 1.2.1
 
 _Released August 1st, 2026_
