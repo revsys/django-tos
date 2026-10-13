@@ -67,9 +67,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          # 3.15 has no final release yet. Harmless for the others, and can be
-          # dropped once 3.15 ships.
-          allow-prereleases: true
 
       - name: Install dependencies
         run: |
