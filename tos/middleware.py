@@ -4,7 +4,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.utils.cache import add_never_cache_headers
 
-from .models import UserAgreement
+from .models import TermsOfService
 from .utils import get_tos_cache
 
 cache = get_tos_cache()
@@ -75,8 +75,11 @@ class UserAgreementMiddleware:
         return not request.session.get(session_key, None)
 
     def get_and_cache_agreement_from_db(self, user_id, key_version):
-        # Grab the data from the database
-        user_agreed = UserAgreement.objects.filter(user__id=user_id, terms_of_service__active=True).exists()
+        # The user must have agreed to every active Terms of Service. With a
+        # single active document this matches the classic single-TOS check;
+        # experimental: with several active `slug`s, all must be agreed to.
+        active = TermsOfService.objects.filter(active=True)
+        user_agreed = active.exists() and not active.exclude(terms__user__id=user_id).exists()
 
         # Set the value in the cache
         cache.set(f"django:tos:agreed:{user_id}", user_agreed, version=key_version)

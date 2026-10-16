@@ -47,14 +47,18 @@ def check_tos(
 ):
 
     redirect_to = _redirect_to(request.POST.get(redirect_field_name, request.GET.get(redirect_field_name, "")))
-    tos = TermsOfService.objects.get_current_tos()
+    # Experimental: a site may have several active documents (one per slug); the
+    # user agrees to all of them at once. With the default single-document setup
+    # this is exactly the one active Terms of Service.
+    active_tos = TermsOfService.objects.get_active()
     if request.method == "POST":
         if request.POST.get("accept", "") == "accept":
             user = get_user_model().objects.get(pk=request.session["tos_user"])
             user.backend = request.session["tos_backend"]
 
-            # Save the user agreement to the new TOS
-            UserAgreement.objects.get_or_create(terms_of_service=tos, user=user)
+            # Save the user agreement to every active TOS
+            for tos in active_tos:
+                UserAgreement.objects.get_or_create(terms_of_service=tos, user=user)
 
             key_version = cache.get("django:tos:key_version")
             cache.delete(f"django:tos:agreed:{user.pk}", version=key_version)
@@ -69,7 +73,8 @@ def check_tos(
         else:
             messages.error(request, _("You cannot login without agreeing to the terms of this site."))
     context = {
-        "tos": tos,
+        "tos": active_tos.first(),  # kept for backwards compatibility with existing templates
+        "tos_list": active_tos,
         "redirect_field_name": redirect_field_name,
         "next": redirect_to,
     }
@@ -116,7 +121,12 @@ def login(
                 # see: https://docs.djangoproject.com/en/1.6/topics/auth/default/#how-to-log-a-user-in
                 request.session["tos_backend"] = user.backend
 
-                context = {"redirect_field_name": redirect_to, "tos": TermsOfService.objects.get_current_tos()}
+                active_tos = TermsOfService.objects.get_active()
+                context = {
+                    "redirect_field_name": redirect_to,
+                    "tos": active_tos.first(),
+                    "tos_list": active_tos,
+                }
 
                 return render(request, "tos/tos_check.html", context)
     else:

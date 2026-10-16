@@ -38,6 +38,32 @@ If no active terms exist, `django-tos` warns when `DEBUG` is `True` and raises
 development therefore will not crash, while a misconfigured production deploy
 fails loudly rather than silently skipping the check.
 
+## Multiple documents (experimental)
+
+> **Experimental.** This is new and its API/UX may change. The default,
+> single-document behavior is unchanged.
+
+By default a project has one `TermsOfService` document. Each `TermsOfService`
+also has a `slug` (defaulting to `"default"`), and **one document is active per
+slug** — so you can require users to agree to several documents (for example a
+terms of service *and* a privacy policy):
+
+```python
+from tos.models import TermsOfService
+
+TermsOfService.objects.create(slug="default", content="...terms...", active=True)
+TermsOfService.objects.create(slug="privacy", content="...privacy policy...", active=True)
+```
+
+- `TermsOfService.objects.get_current_tos(slug="privacy")` returns the active
+  document for a slug (defaults to `"default"`).
+- `TermsOfService.objects.get_active()` returns the active document for every slug.
+- Users must agree to **all** active documents; the login/middleware check and
+  the confirm page handle them together, recording an agreement for each.
+
+Existing installs keep a single `"default"` document and behave exactly as
+before — the migration backfills `slug="default"` for existing rows.
+
 ## Configuration
 
 ### Options
